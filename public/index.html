@@ -14,20 +14,28 @@
 <div class="app-container">
     <header class="main-header">
         <h1>Facturador <span>Digital</span></h1>
-        <p>Gestión de comprobantes y cobranzas</p>
     </header>
 
     <div class="main-grid">
         <div class="card panel-datos">
             <h3><span class="icon">📝</span> Datos de Facturación</h3>
             <form id="facturaForm">
-                <div class="form-group">
-                    <label>Tipo de Comprobante</label>
-                    <select id="tipoFactura" onchange="adaptarCampos()">
-                        <option value="C">Monotributo C</option>
-                        <option value="B">Factura B (Cons. Final)</option>
-                        <option value="A">Factura A (RI a RI)</option>
-                    </select>
+                <div class="row">
+                    <div class="form-group">
+                        <label>Tipo Comprobante</label>
+                        <select id="tipoFactura">
+                            <option value="C">Monotributo C</option>
+                            <option value="B">Factura B</option>
+                            <option value="A">Factura A</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Concepto</label>
+                        <select id="concepto" onchange="toggleFechas()">
+                            <option value="Productos">Productos</option>
+                            <option value="Servicios">Servicios</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -37,9 +45,20 @@
 
                 <div id="camposExtra" class="form-group"></div>
 
+                <div id="seccionFechas" class="row hidden">
+                    <div class="form-group">
+                        <label>Período Desde</label>
+                        <input type="date" id="fechaDesde">
+                    </div>
+                    <div class="form-group">
+                        <label>Período Hasta</label>
+                        <input type="date" id="fechaHasta">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Descripción / Detalle</label>
-                    <textarea id="detalle" placeholder="Ej: Abono mes de Febrero - Patente XXX" required></textarea>
+                    <textarea id="detalle" placeholder="Detalle de la venta..." required></textarea>
                 </div>
 
                 <div class="row">
@@ -62,7 +81,7 @@
                 <input type="email" id="email" form="facturaForm" placeholder="cliente@correo.com" required>
             </div>
             <div class="form-group">
-                <label>WhatsApp (Cod. País + Area + Nro)</label>
+                <label>WhatsApp</label>
                 <input type="tel" id="telefono" form="facturaForm" placeholder="54911..." required>
             </div>
             <div class="form-group">
@@ -73,55 +92,37 @@
                 </select>
             </div>
 
-            <div class="botones-container">
-                <button type="submit" form="facturaForm" class="btn-primary" id="btnGenerar">
-                    💾 Guardar y Generar PDF
-                </button>
-            </div>
+            <button type="submit" form="facturaForm" class="btn-primary" id="btnGenerar">
+                💾 Guardar y Generar PDF
+            </button>
         </div>
     </div>
 
     <div class="card panel-preview">
-        <h3><span class="icon">👁️</span> Previsualización</h3>
         <div id="facturaLive" class="factura-preview-box">
             <div class="preview-header">
                 <div id="pre-tipo">C</div>
-                <div class="emisor-mini">
-                    <strong>MI EMPRESA DIGITAL</strong><br>
-                    CUIT: 30-00000000-0
-                </div>
+                <div class="emisor-mini"><strong>MI EMPRESA</strong><br>CUIT: 30-12345678-9</div>
             </div>
             <div class="preview-content">
-                <p><strong>Sr/es:</strong> <span id="pre-nombre">...</span></p>
-                <p><strong>Concepto:</strong> <span id="pre-detalle">...</span></p>
-                <div class="preview-total">
-                    <span>TOTAL:</span>
-                    <span id="pre-total">$ 0.00</span>
-                </div>
+                <p><strong>Concepto:</strong> <span id="pre-concepto">Productos</span></p>
+                <p><strong>Cliente:</strong> <span id="pre-nombre">...</span></p>
+                <p><strong>Detalle:</strong> <span id="pre-detalle">...</span></p>
+                <div class="preview-total"><span>TOTAL:</span><span id="pre-total">$ 0.00</span></div>
             </div>
         </div>
     </div>
 
     <div class="card panel-historial">
-        <h3><span class="icon">📋</span> Historial de Facturas</h3>
+        <h3>📋 Historial</h3>
         <div class="table-container">
             <table>
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Cliente</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Fecha</th><th>Tipo</th><th>Cliente</th><th>Monto</th><th>Estado</th><th>Acción</th></tr></thead>
                 <tbody id="tablaBody"></tbody>
             </table>
         </div>
     </div>
 </div>
-
 <script type="module" src="script.js"></script>
 </body>
 </html>
