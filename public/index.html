@@ -3,85 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sitema de Facturación Pro</title>
+    <title>Facturador Pro v2.0</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
 
-<div class="dashboard">
-    <div class="panel form-panel">
-        <h2>🚀 Nueva Factura</h2>
-        <form id="facturaForm">
-            <div class="grid">
-                <section>
+<div class="app-container">
+    <header class="main-header">
+        <h1>Sistema de Facturación <span>PRO</span></h1>
+    </header>
+
+    <div class="main-grid">
+        <div class="card panel-datos">
+            <h3>📝 Datos de la Factura</h3>
+            <form id="facturaForm">
+                <div class="form-group">
                     <label>Tipo de Comprobante</label>
                     <select id="tipoFactura" onchange="adaptarCampos()">
                         <option value="C">Monotributo C</option>
-                        <option value="B">Factura B (RI a Cons. Final)</option>
-                        <option value="A">Factura A (Inscripto a Inscripto)</option>
+                        <option value="B">Factura B (Cons. Final)</option>
+                        <option value="A">Factura A (RI a RI)</option>
                     </select>
-                </section>
-                <section>
-                    <label>Estado Inicial</label>
-                    <select id="estadoPago">
-                        <option value="pagado">Pagado</option>
-                        <option value="pendiente">Pendiente</option>
-                    </select>
-                </section>
-            </div>
-
-            <label>Nombre / Razón Social</label>
-            <input type="text" id="nombre" required>
-
-            <div id="camposExtra">
+                </div>
+                
+                <div class="form-group">
+                    <label>Nombre / Razón Social</label>
+                    <input type="text" id="nombre" placeholder="Nombre del cliente" required>
                 </div>
 
-            <label>Descripción</label>
-            <textarea id="detalle" rows="2" required></textarea>
+                <div id="camposExtra" class="form-group"></div>
 
-            <div class="grid">
-                <section>
-                    <label>Monto Total ($)</label>
-                    <input type="number" id="precio" step="0.01" required>
-                </section>
-                <section>
-                    <label>Fecha Emisión (Manual)</label>
-                    <input type="date" id="fechaManual">
-                </section>
+                <div class="form-group">
+                    <label>Descripción del servicio/producto</label>
+                    <textarea id="detalle" placeholder="Ej: Abono mes de Febrero - Patente XXX" required></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label>Importe Total ($)</label>
+                        <input type="number" id="precio" step="0.01" placeholder="0.00" required oninput="actualizarPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Emisión</label>
+                        <input type="date" id="fechaManual">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card panel-envio">
+            <h3>🚀 Canales de Envío</h3>
+            <div class="form-group">
+                <label>Email de destino</label>
+                <input type="email" id="email" form="facturaForm" placeholder="cliente@correo.com" required>
+            </div>
+            <div class="form-group">
+                <label>WhatsApp (Sin +)</label>
+                <input type="tel" id="telefono" form="facturaForm" placeholder="5491166778899" required>
+            </div>
+            <div class="form-group">
+                <label>Estado de Cobro</label>
+                <select id="estadoPago" form="facturaForm">
+                    <option value="pendiente">🟠 Pendiente</option>
+                    <option value="pagado">🟢 Pagado</option>
+                </select>
             </div>
 
-            <div class="grid">
-                <section>
-                    <label>Email Cliente</label>
-                    <input type="email" id="email" required>
-                </section>
-                <section>
-                    <label>WhatsApp (Sin +)</label>
-                    <input type="tel" id="telefono" placeholder="54911...">
-                </section>
+            <div class="botones-accion">
+                <button type="submit" form="facturaForm" class="btn-primary" id="btnGenerar">
+                    💾 Guardar y Descargar PDF
+                </button>
             </div>
-
-            <button type="submit" id="btnGenerar">Guardar y Generar PDF</button>
-        </form>
+        </div>
     </div>
 
-    <div class="panel list-panel">
-        <h2>📋 Historial de Facturas</h2>
-        <div id="historial">
+    <div class="card panel-preview">
+        <h3>👁️ Previsualización en Tiempo Real</h3>
+        <div id="facturaLive" class="factura-box">
+            <div class="preview-header">
+                <div id="pre-tipo">C</div>
+                <div class="pre-datos-emisor">
+                    <strong>MI EMPRESA DIGITAL</strong><br>
+                    CUIT: 30-00000000-0
+                </div>
+            </div>
+            <div class="preview-body">
+                <p><strong>Cliente:</strong> <span id="pre-nombre">...</span></p>
+                <p><strong>Concepto:</strong> <span id="pre-detalle">...</span></p>
+                <hr>
+                <div class="pre-total">TOTAL: $<span id="pre-total">0.00</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card panel-historial">
+        <h3>📋 Historial de Comprobantes</h3>
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th>Fecha</th>
+                        <th>Tipo</th>
                         <th>Cliente</th>
                         <th>Total</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="tablaBody">
-                    </tbody>
+                <tbody id="tablaBody"></tbody>
             </table>
         </div>
     </div>
