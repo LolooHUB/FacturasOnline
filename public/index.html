@@ -126,6 +126,134 @@
     </div>
 </div>
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturador Pro - Mobile Ready</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --card: #ffffff; --border: #e2e8f0; }
+        body.dark-mode { --bg: #0f172a; --text: #f1f5f9; --card: #1e293b; --border: #334155; }
+        
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 15px; transition: 0.3s; margin: 0; }
+        .app-container { max-width: 1100px; margin: 0 auto; }
+        
+        /* Layout responsivo */
+        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        
+        h3 { font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+        label { display: block; font-size: 0.7rem; font-weight: 700; margin-bottom: 3px; opacity: 0.8; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; background: var(--card); color: var(--text); margin-bottom: 10px; }
+        
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .btn { padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.85rem; transition: 0.2s; text-align: center; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-whatsapp { background: #25d366; color: white; }
+        .btn-theme { position: fixed; top: 15px; right: 15px; width: 35px; height: 35px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); cursor: pointer; color: var(--text); z-index: 100; }
+
+        /* PREVIEW ADAPTABLE */
+        .preview-container { margin-top: 20px; display: flex; justify-content: center; width: 100%; overflow-x: hidden; }
+        #factura-papel { 
+            background: white; color: black; 
+            width: 100%; max-width: 800px; /* Se adapta al ancho del dispositivo */
+            min-height: 500px; padding: 20px; 
+            box-sizing: border-box; border: 1px solid #000; font-size: 0.8rem;
+        }
+
+        .f-header { display: flex; border: 1px solid #000; margin-bottom: 0; }
+        .f-col { flex: 1; padding: 8px; overflow: hidden; }
+        .f-letra { width: 45px; border-left: 1px solid #000; border-right: 1px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; }
+        .f-cliente { border: 1px solid #000; border-top: none; padding: 10px; line-height: 1.4; }
+        .f-items-h { display: grid; grid-template-columns: 2fr 1fr; background: #eee; border: 1px solid #000; border-top: none; padding: 5px 10px; font-weight: bold; }
+        .f-items-b { border: 1px solid #000; border-top: none; min-height: 150px; display: grid; grid-template-columns: 2fr 1fr; }
+        .f-items-b div { padding: 10px; border-right: 1px solid #000; }
+        .f-total { border: 1px solid #000; border-top: none; padding: 10px; text-align: right; font-size: 1.3rem; font-weight: bold; }
+
+        @media (max-width: 600px) {
+            .f-header { flex-direction: column; height: auto; }
+            .f-letra { width: 100%; border: none; border-top: 1px solid #000; border-bottom: 1px solid #000; height: 40px; }
+            .f-col { text-align: left !important; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="btn-theme" onclick="document.body.classList.toggle('dark-mode')">🌓</button>
+
+<div class="app-container">
+    <div class="main-grid">
+        <div class="card">
+            <h3>🏢 Mis Datos</h3>
+            <label>Empresa</label>
+            <input type="text" id="eNom" value="Aero 2000" oninput="render()">
+            <label>Mi CUIT</label>
+            <input type="text" id="eCuit" value="30-12345678-9" oninput="render()">
+            <label>CBU / Alias (Para Cobrar)</label>
+            <input type="text" id="ePago" placeholder="Alias.mercado.pago" value="AERO.2000.MP">
+        </div>
+
+        <div class="card">
+            <h3>👤 Cliente</h3>
+            <input type="text" id="cNom" placeholder="Nombre Cliente" oninput="render()">
+            <input type="text" id="cId" placeholder="CUIT / DNI" oninput="render()">
+            <input type="text" id="cDir" placeholder="Dirección" oninput="render()">
+            <select id="cIva" onchange="render()">
+                <option>Consumidor Final</option>
+                <option>Monotributista</option>
+                <option>Resp. Inscripto</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <div class="card">
+            <h3>📦 Facturación</h3>
+            <textarea id="det" placeholder="Detalle..." oninput="render()"></textarea>
+            <div style="display:flex; gap:10px">
+                <input type="number" id="monto" placeholder="Total $" oninput="render()">
+                <input type="date" id="fec" onchange="render()">
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🚀 Envío</h3>
+            <input type="email" id="email" placeholder="mail@cliente.com">
+            <input type="tel" id="tel" placeholder="WhatsApp (Ej: 54911...)">
+            <div class="btn-group">
+                <button onclick="enviar('mail')" class="btn btn-primary" id="btnM">📧 Mail</button>
+                <button onclick="enviar('wa')" class="btn btn-whatsapp">🟢 WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="preview-container">
+        <div id="factura-papel">
+            <div class="f-header">
+                <div class="f-col"><strong id="p-eNom">AERO 2000</strong><br>CUIT: <span id="p-eCuit">...</span></div>
+                <div class="f-letra"><h1>C</h1></div>
+                <div class="f-col" style="text-align: right;"><strong>FACTURA</strong><br>Fecha: <span id="p-fec">--/--/--</span></div>
+            </div>
+            <div class="f-cliente">
+                <strong>Cliente:</strong> <span id="p-cNom">...</span><br>
+                <strong>CUIT/DNI:</strong> <span id="p-cId">...</span> | <span id="p-cIva">Cons. Final</span><br>
+                <strong>Dir:</strong> <span id="p-cDir">...</span>
+            </div>
+            <div class="f-items-h"><span>Descripción</span><span style="text-align:right">Subtotal</span></div>
+            <div class="f-items-b">
+                <div id="p-det">...</div>
+                <div id="p-sub" style="text-align:right; font-weight:bold;">$ 0.00</div>
+            </div>
+            <div class="f-total">TOTAL: <span id="p-tot">$ 0.00</span></div>
+        </div>
+    </div>
+</div>
+
 <script>
     emailjs.init("ne2_1nbxGq2hC0ju1");
 
@@ -180,5 +308,7 @@
     }
     window.onload = render;
 </script>
+</body>
+</html>
 </body>
 </html>
