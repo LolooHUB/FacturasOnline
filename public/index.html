@@ -3,83 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Facturas Argentina</title>
-    
+    <title>Sitema de Facturación Pro</title>
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
 
-    <div class="container">
-        <h2>📄 Facturador Digital Pro</h2>
-        <p style="text-align: center; font-size: 0.8em; color: #666;">Inspirado en formato AA2000</p>
-        
+<div class="dashboard">
+    <div class="panel form-panel">
+        <h2>🚀 Nueva Factura</h2>
         <form id="facturaForm">
-            <label for="nombre">Nombre o Razón Social</label>
-            <input type="text" id="nombre" placeholder="Ej: Juan Pérez" required>
-
-            <label for="dni">CUIT / DNI</label>
-            <input type="number" id="dni" placeholder="Sin guiones" required>
-
-            <label for="email">Email del Cliente</label>
-            <input type="email" id="email" placeholder="Para enviar el comprobante" required>
-
-            <label for="telefono">WhatsApp</label>
-            <input type="tel" id="telefono" placeholder="Ej: 5491166778899" required>
-
-            <hr>
-
-            <label for="tipoFactura">Tipo de Comprobante</label>
-            <select id="tipoFactura">
-                <option value="B">Factura B (Consumidor Final)</option>
-                <option value="A">Factura A (Inscripto a Inscripto)</option>
-                <option value="C">Monotributo C</option>
-            </select>
-
-            <label for="tipoItem">Concepto</label>
-            <select id="tipoItem" onchange="toggleServicio()">
-                <option value="objeto">Objeto / Producto</option>
-                <option value="servicio">Servicio / Estadía</option>
-            </select>
-
-            <div id="divServicio" class="hidden">
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1;">
-                        <label>Entrada</label>
-                        <input type="datetime-local" id="fechaE">
-                    </div>
-                    <div style="flex: 1;">
-                        <label>Salida</label>
-                        <input type="datetime-local" id="fechaS">
-                    </div>
-                </div>
+            <div class="grid">
+                <section>
+                    <label>Tipo de Comprobante</label>
+                    <select id="tipoFactura" onchange="adaptarCampos()">
+                        <option value="C">Monotributo C</option>
+                        <option value="B">Factura B (RI a Cons. Final)</option>
+                        <option value="A">Factura A (Inscripto a Inscripto)</option>
+                    </select>
+                </section>
+                <section>
+                    <label>Estado Inicial</label>
+                    <select id="estadoPago">
+                        <option value="pagado">Pagado</option>
+                        <option value="pendiente">Pendiente</option>
+                    </select>
+                </section>
             </div>
 
-            <label for="detalle">Descripción adicional</label>
-            <input type="text" id="detalle" placeholder="Ej: Patente LKQ562 o Mes de abono">
+            <label>Nombre / Razón Social</label>
+            <input type="text" id="nombre" required>
 
-            <label for="precio">Monto Total ($)</label>
-            <input type="number" id="precio" step="0.01" placeholder="Monto final a cobrar" required>
+            <div id="camposExtra">
+                </div>
 
-            <button type="submit" id="btnGuardar">Generar, Guardar y Enviar</button>
+            <label>Descripción</label>
+            <textarea id="detalle" rows="2" required></textarea>
+
+            <div class="grid">
+                <section>
+                    <label>Monto Total ($)</label>
+                    <input type="number" id="precio" step="0.01" required>
+                </section>
+                <section>
+                    <label>Fecha Emisión (Manual)</label>
+                    <input type="date" id="fechaManual">
+                </section>
+            </div>
+
+            <div class="grid">
+                <section>
+                    <label>Email Cliente</label>
+                    <input type="email" id="email" required>
+                </section>
+                <section>
+                    <label>WhatsApp (Sin +)</label>
+                    <input type="tel" id="telefono" placeholder="54911...">
+                </section>
+            </div>
+
+            <button type="submit" id="btnGenerar">Guardar y Generar PDF</button>
         </form>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <div class="panel list-panel">
+        <h2>📋 Historial de Facturas</h2>
+        <div id="historial">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-    <script>
-        // Función para mostrar/ocultar campos de fecha si es servicio
-        function toggleServicio() {
-            const esServicio = document.getElementById('tipoItem').value === 'servicio';
-            const div = document.getElementById('divServicio');
-            if (esServicio) {
-                div.classList.remove('hidden');
-            } else {
-                div.classList.add('hidden');
-            }
-        }
-    </script>
+<script type="module" src="script.js"></script>
 </body>
 </html>
