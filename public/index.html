@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facturador Pro v2.0</title>
+    <title>Facturador Pro Digital</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -13,12 +13,13 @@
 
 <div class="app-container">
     <header class="main-header">
-        <h1>Sistema de Facturación <span>PRO</span></h1>
+        <h1>Facturador <span>Digital</span></h1>
+        <p>Gestión de comprobantes y cobranzas</p>
     </header>
 
     <div class="main-grid">
         <div class="card panel-datos">
-            <h3>📝 Datos de la Factura</h3>
+            <h3><span class="icon">📝</span> Datos de Facturación</h3>
             <form id="facturaForm">
                 <div class="form-group">
                     <label>Tipo de Comprobante</label>
@@ -37,14 +38,14 @@
                 <div id="camposExtra" class="form-group"></div>
 
                 <div class="form-group">
-                    <label>Descripción del servicio/producto</label>
+                    <label>Descripción / Detalle</label>
                     <textarea id="detalle" placeholder="Ej: Abono mes de Febrero - Patente XXX" required></textarea>
                 </div>
 
                 <div class="row">
                     <div class="form-group">
                         <label>Importe Total ($)</label>
-                        <input type="number" id="precio" step="0.01" placeholder="0.00" required oninput="actualizarPreview()">
+                        <input type="number" id="precio" step="0.01" placeholder="0.00" required>
                     </div>
                     <div class="form-group">
                         <label>Fecha de Emisión</label>
@@ -55,52 +56,54 @@
         </div>
 
         <div class="card panel-envio">
-            <h3>🚀 Canales de Envío</h3>
+            <h3><span class="icon">🚀</span> Envío y Cobro</h3>
             <div class="form-group">
                 <label>Email de destino</label>
                 <input type="email" id="email" form="facturaForm" placeholder="cliente@correo.com" required>
             </div>
             <div class="form-group">
-                <label>WhatsApp (Sin +)</label>
-                <input type="tel" id="telefono" form="facturaForm" placeholder="5491166778899" required>
+                <label>WhatsApp (Cod. País + Area + Nro)</label>
+                <input type="tel" id="telefono" form="facturaForm" placeholder="54911..." required>
             </div>
             <div class="form-group">
-                <label>Estado de Cobro</label>
+                <label>Estado Inicial</label>
                 <select id="estadoPago" form="facturaForm">
                     <option value="pendiente">🟠 Pendiente</option>
                     <option value="pagado">🟢 Pagado</option>
                 </select>
             </div>
 
-            <div class="botones-accion">
+            <div class="botones-container">
                 <button type="submit" form="facturaForm" class="btn-primary" id="btnGenerar">
-                    💾 Guardar y Descargar PDF
+                    💾 Guardar y Generar PDF
                 </button>
             </div>
         </div>
     </div>
 
     <div class="card panel-preview">
-        <h3>👁️ Previsualización en Tiempo Real</h3>
-        <div id="facturaLive" class="factura-box">
+        <h3><span class="icon">👁️</span> Previsualización</h3>
+        <div id="facturaLive" class="factura-preview-box">
             <div class="preview-header">
                 <div id="pre-tipo">C</div>
-                <div class="pre-datos-emisor">
+                <div class="emisor-mini">
                     <strong>MI EMPRESA DIGITAL</strong><br>
                     CUIT: 30-00000000-0
                 </div>
             </div>
-            <div class="preview-body">
-                <p><strong>Cliente:</strong> <span id="pre-nombre">...</span></p>
+            <div class="preview-content">
+                <p><strong>Sr/es:</strong> <span id="pre-nombre">...</span></p>
                 <p><strong>Concepto:</strong> <span id="pre-detalle">...</span></p>
-                <hr>
-                <div class="pre-total">TOTAL: $<span id="pre-total">0.00</span></div>
+                <div class="preview-total">
+                    <span>TOTAL:</span>
+                    <span id="pre-total">$ 0.00</span>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="card panel-historial">
-        <h3>📋 Historial de Comprobantes</h3>
+        <h3><span class="icon">📋</span> Historial de Facturas</h3>
         <div class="table-container">
             <table>
                 <thead>
@@ -108,9 +111,9 @@
                         <th>Fecha</th>
                         <th>Tipo</th>
                         <th>Cliente</th>
-                        <th>Total</th>
+                        <th>Monto</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody id="tablaBody"></tbody>
