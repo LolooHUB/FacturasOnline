@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Facturador Pro - Sistema de Gestión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturador Digital Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
@@ -20,19 +20,19 @@
     </header>
 
     <div class="main-grid">
-        <div class="card panel-emisor">
-            <h3>🏢 Emisor (Tus Datos)</h3>
+        <div class="card">
+            <h3>🏢 Mis Datos (Emisor)</h3>
             <div class="form-group">
-                <label>Razón Social / Nombre</label>
-                <input type="text" id="emisorNombre" placeholder="Tu Empresa" oninput="updatePreview()">
+                <label>Razón Social</label>
+                <input type="text" id="emisorNombre" placeholder="Nombre de tu empresa" oninput="updatePreview()">
             </div>
             <div class="form-group">
-                <label>CUIT Emisor</label>
+                <label>CUIT</label>
                 <input type="text" id="emisorCuit" placeholder="30-XXXXXXXX-X" oninput="updatePreview()">
             </div>
             <div class="form-group">
-                <label>Tipo de Comprobante</label>
-                <select id="tipoFactura" onchange="adaptarCampos(); updatePreview();">
+                <label>Tipo Comprobante</label>
+                <select id="tipoFactura" onchange="adaptarUI()">
                     <option value="C">Monotributo C</option>
                     <option value="B">Factura B (Cons. Final)</option>
                     <option value="A">Factura A (Resp. Insc.)</option>
@@ -40,29 +40,41 @@
             </div>
         </div>
 
-        <div class="card panel-cliente">
+        <div class="card">
             <h3>👤 Datos del Cliente</h3>
             <div class="form-group">
                 <label>Nombre / Razón Social</label>
-                <input type="text" id="clienteNombre" placeholder="Nombre del cliente" oninput="updatePreview()">
+                <input type="text" id="clienteNombre" oninput="updatePreview()">
             </div>
-            <div id="camposDinamicosCliente">
+            <div class="row">
                 <div class="form-group">
-                    <label>DNI / CUIT</label>
-                    <input type="text" id="clienteId" placeholder="DNI o CUIT" oninput="updatePreview()">
+                    <label id="labelId">DNI / CUIT</label>
+                    <input type="text" id="clienteId" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                    <label>Condición IVA</label>
+                    <select id="clienteIva" onchange="updatePreview()">
+                        <option value="Consumidor Final">Consumidor Final</option>
+                        <option value="Monotributista">Monotributista</option>
+                        <option value="Resp. Inscripto">Resp. Inscripto</option>
+                        <option value="Exento">Exento</option>
+                    </select>
                 </div>
             </div>
             <div class="form-group">
                 <label>Dirección</label>
-                <input type="text" id="clienteDir" placeholder="Calle 123, Ciudad" oninput="updatePreview()">
+                <input type="text" id="clienteDir" oninput="updatePreview()">
             </div>
         </div>
     </div>
 
     <div class="main-grid">
-        <div class="card panel-detalles">
-            <h3>📦 Detalles de Facturación</h3>
-            <textarea id="detalle" placeholder="Descripción del servicio..." oninput="updatePreview()"></textarea>
+        <div class="card">
+            <h3>📦 Facturación</h3>
+            <div class="form-group">
+                <label>Detalle del Servicio</label>
+                <textarea id="detalle" oninput="updatePreview()" placeholder="Descripción..."></textarea>
+            </div>
             <div class="row">
                 <div class="form-group">
                     <label>Importe Total ($)</label>
@@ -75,8 +87,8 @@
             </div>
         </div>
 
-        <div class="card panel-acciones">
-            <h3>🚀 Envío y Descarga</h3>
+        <div class="card">
+            <h3>🚀 Acción y Envío</h3>
             <div class="form-group">
                 <label>Canal de Envío</label>
                 <select id="canalEnvio" onchange="toggleCanal()">
@@ -84,32 +96,36 @@
                     <option value="email">Email</option>
                 </select>
             </div>
-            <div id="inputWhatsApp" class="form-group">
-                <input type="tel" id="telefono" placeholder="WhatsApp (54911...)">
-            </div>
-            <div id="inputEmail" class="form-group" style="display:none">
-                <input type="email" id="email" placeholder="cliente@correo.com">
-            </div>
-            <button type="button" class="btn-primary" onclick="procesarFactura()">GENERAR, DESCARGAR Y ENVIAR</button>
+            <input type="tel" id="telefono" placeholder="54911..." class="mt-10">
+            <input type="email" id="email" placeholder="cliente@correo.com" class="mt-10" style="display:none">
+            
+            <button type="button" onclick="procesarTodo()" class="btn-primary" id="btnProcesar">
+                GENERAR COMPROBANTE
+            </button>
         </div>
     </div>
 
-    <div class="preview-container">
-        <div class="factura-box" id="areaPreview">
-            <div class="factura-header">
+    <div class="preview-wrap">
+        <div class="factura-box" id="facturaLive">
+            <div class="f-header">
                 <div id="pre-tipo">C</div>
-                <div class="header-datos">
-                    <strong id="pre-emisor">EMPRESA</strong><br>
-                    <span id="pre-emisor-cuit">CUIT</span>
+                <div class="f-emisor">
+                    <strong id="p-e-nom">EMPRESA</strong><br>
+                    CUIT: <span id="p-e-cuit">...</span>
                 </div>
             </div>
-            <div class="factura-body">
-                <p><strong>Cliente:</strong> <span id="pre-cliente">...</span></p>
-                <p><strong>ID Cliente:</strong> <span id="pre-cliente-id">...</span></p>
-                <p><strong>Dirección:</strong> <span id="pre-cliente-dir">...</span></p>
-                <p><strong>Concepto:</strong> <span id="pre-detalle">...</span></p>
-                <hr>
-                <div class="factura-total">TOTAL: <span id="pre-total">$ 0.00</span></div>
+            <div class="f-section">
+                <strong>CLIENTE:</strong> <span id="p-c-nom">...</span><br>
+                <strong>CUIT/DNI:</strong> <span id="p-c-id">...</span><br>
+                <strong>IVA:</strong> <span id="p-c-iva">Consumidor Final</span><br>
+                <strong>DIRECCIÓN:</strong> <span id="p-c-dir">...</span>
+            </div>
+            <div class="f-section" style="border-top: 1px dashed #000; padding-top: 10px;">
+                <strong>CONCEPTO:</strong><br>
+                <span id="p-det">...</span>
+            </div>
+            <div class="f-total">
+                TOTAL: <span id="p-tot">$ 0.00</span>
             </div>
         </div>
     </div>
