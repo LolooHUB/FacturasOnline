@@ -1,132 +1,102 @@
-// 1. INICIALIZAR FIREBASE (VERSIÓN COMPAT)
+// 1. FIREBASE SETUP
 let db;
-fetch('/__/firebase/init.json').then(async response => {
-    const config = await response.json();
-    firebase.initializeApp(config);
+fetch('/__/firebase/init.json').then(async r => {
+    const c = await r.json();
+    firebase.initializeApp(c);
     db = firebase.firestore();
-    console.log("Firebase Conectado Correctamente");
-}).catch(err => console.error("Error al iniciar Firebase:", err));
+});
 
-// Inicializar EmailJS
 emailjs.init("ne2_1nbxGq2hC0ju1");
 
-// 2. ADAPTAR CAMPOS SEGÚN TIPO (A, B o C)
-function adaptarCampos() {
-    const tipo = document.getElementById('tipoFactura').value;
-    const div = document.getElementById('camposDinamicosCliente');
-    
-    if (tipo === 'A') {
-        div.innerHTML = `
-            <div class="form-group">
-                <label>CUIT Cliente (Obligatorio)</label>
-                <input type="text" id="clienteId" placeholder="30-XXXXXXXX-X" oninput="updatePreview()">
-            </div>
-            <div class="form-group">
-                <label>Condición IVA</label>
-                <select id="clienteIva"><option>Responsable Inscripto</option></select>
-            </div>`;
-    } else {
-        div.innerHTML = `
-            <div class="form-group">
-                <label>DNI / CUIT</label>
-                <input type="text" id="clienteId" placeholder="DNI o CUIT" oninput="updatePreview()">
-            </div>
-            <div class="form-group">
-                <label>Condición IVA</label>
-                <select id="clienteIva">
-                    <option>Consumidor Final</option>
-                    <option>Monotributista</option>
-                </select>
-            </div>`;
-    }
-}
-
-// 3. ACTUALIZAR PREVIEW (Sincronización Total)
+// 2. ACTUALIZAR PREVIEW (Sincronizado)
 function updatePreview() {
+    document.getElementById('p-e-nom').innerText = document.getElementById('emisorNombre').value || "EMPRESA";
+    document.getElementById('p-e-cuit').innerText = document.getElementById('emisorCuit').value || "...";
+    document.getElementById('p-c-nom').innerText = document.getElementById('clienteNombre').value || "...";
+    document.getElementById('p-c-id').innerText = document.getElementById('clienteId').value || "...";
+    document.getElementById('p-c-iva').innerText = document.getElementById('clienteIva').value;
+    document.getElementById('p-c-dir').innerText = document.getElementById('clienteDir').value || "...";
+    document.getElementById('p-det').innerText = document.getElementById('detalle').value || "...";
+    document.getElementById('p-tot').innerText = "$ " + (document.getElementById('precio').value || "0.00");
     document.getElementById('pre-tipo').innerText = document.getElementById('tipoFactura').value;
-    document.getElementById('pre-emisor').innerText = document.getElementById('emisorNombre').value || "EMPRESA";
-    document.getElementById('pre-emisor-cuit').innerText = document.getElementById('emisorCuit').value || "CUIT";
-    document.getElementById('pre-cliente').innerText = document.getElementById('clienteNombre').value || "...";
-    document.getElementById('pre-cliente-id').innerText = document.getElementById('clienteId')?.value || "...";
-    document.getElementById('pre-cliente-dir').innerText = document.getElementById('clienteDir').value || "...";
-    document.getElementById('pre-detalle').innerText = document.getElementById('detalle').value || "...";
-    document.getElementById('pre-total').innerText = "$ " + (document.getElementById('precio').value || "0.00");
 }
 
-// 4. TOGGLE CANAL
+// 3. ADAPTAR UI SEGÚN TIPO
+function adaptarUI() {
+    const tipo = document.getElementById('tipoFactura').value;
+    const label = document.getElementById('labelId');
+    const iva = document.getElementById('clienteIva');
+
+    if(tipo === 'A') {
+        label.innerText = "CUIT Cliente (Obligatorio)";
+        iva.value = "Resp. Inscripto";
+    } else {
+        label.innerText = "DNI / CUIT Cliente";
+        iva.value = "Consumidor Final";
+    }
+    updatePreview();
+}
+
+// 4. CAMBIAR CANAL
 function toggleCanal() {
     const canal = document.getElementById('canalEnvio').value;
-    document.getElementById('inputWhatsApp').style.display = (canal === 'whatsapp') ? 'block' : 'none';
-    document.getElementById('inputEmail').style.display = (canal === 'email') ? 'block' : 'none';
+    document.getElementById('email').style.display = (canal === 'email') ? 'block' : 'none';
+    document.getElementById('telefono').style.display = (canal === 'whatsapp') ? 'block' : 'none';
 }
 
-// 5. FUNCIÓN MAESTRA: GUARDAR, DESCARGAR Y ENVIAR
-async function procesarFactura() {
-    const btn = document.querySelector('.btn-primary');
-    btn.innerText = "PROCESANDO...";
+// 5. PROCESAR TODO
+async function procesarTodo() {
+    const btn = document.getElementById('btnProcesar');
     btn.disabled = true;
+    btn.innerText = "PROCESANDO...";
 
-    const datos = {
+    const d = {
         emisor: document.getElementById('emisorNombre').value,
         eCuit: document.getElementById('emisorCuit').value,
         cliente: document.getElementById('clienteNombre').value,
-        cId: document.getElementById('clienteId')?.value || "No informado",
+        cId: document.getElementById('clienteId').value,
+        cIva: document.getElementById('clienteIva').value,
         cDir: document.getElementById('clienteDir').value,
-        tipo: document.getElementById('tipoFactura').value,
         detalle: document.getElementById('detalle').value,
         total: document.getElementById('precio').value,
-        canal: document.getElementById('canalEnvio').value,
+        tipo: document.getElementById('tipoFactura').value,
         tel: document.getElementById('telefono').value,
         mail: document.getElementById('email').value,
-        creado: new Date().toISOString()
+        canal: document.getElementById('canalEnvio').value,
+        fecha: document.getElementById('fechaManual').value || new Date().toLocaleDateString()
     };
 
     try {
-        // A. GUARDAR EN FIREBASE (Si está listo)
-        if (db) {
-            await db.collection("facturas").add(datos);
-        }
-
-        // B. GENERAR PDF
+        // PDF
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF();
-        pdf.setFontSize(22);
-        pdf.text(datos.tipo, 105, 20, {align: 'center'});
+        pdf.setFontSize(22); pdf.text(d.tipo, 105, 20, {align:'center'});
         pdf.setFontSize(12);
-        pdf.text("EMISOR: " + datos.emisor, 20, 40);
-        pdf.text("CUIT: " + datos.eCuit, 20, 46);
-        pdf.line(20, 52, 190, 52);
-        pdf.text("CLIENTE: " + datos.cliente, 20, 62);
-        pdf.text("ID: " + datos.cId, 20, 68);
-        pdf.text("DIRECCIÓN: " + datos.cDir, 20, 74);
-        pdf.text("DETALLE: " + datos.detalle, 20, 95);
-        pdf.setFontSize(16);
-        pdf.text("TOTAL: $" + datos.total, 20, 120);
-        pdf.save(`Factura_${datos.cliente}.pdf`);
+        pdf.text(d.emisor, 20, 40);
+        pdf.text("CUIT: " + d.eCuit, 20, 46);
+        pdf.line(20, 50, 190, 50);
+        pdf.text("CLIENTE: " + d.cliente, 20, 60);
+        pdf.text("ID: " + d.cId, 20, 66);
+        pdf.text("DIRECCIÓN: " + d.cDir, 20, 72);
+        pdf.text("DETALLE: " + d.detalle, 20, 90);
+        pdf.setFontSize(18); pdf.text("TOTAL: $" + d.total, 20, 120);
+        pdf.save(`Factura_${d.cliente}.pdf`);
 
-        // C. ENVIAR
-        if (datos.canal === 'whatsapp') {
-            const url = `https://api.whatsapp.com/send?phone=${datos.tel}&text=${encodeURIComponent('Hola ' + datos.cliente + ', te envío la factura de ' + datos.emisor + ' por $' + datos.total)}`;
-            window.open(url, '_blank');
+        // GUARDAR
+        if(db) { await db.collection("facturas").add({...d, creado: new Date()}); }
+
+        // ENVIAR
+        if(d.canal === 'whatsapp') {
+            window.open(`https://api.whatsapp.com/send?phone=${d.tel}&text=${encodeURIComponent('Hola '+d.cliente+', factura de '+d.emisor+' por $'+d.total)}`, '_blank');
         } else {
-            await emailjs.send("service_t5t4wor", "template_acd00wp", {
-                to_email: datos.mail,
-                to_name: datos.cliente,
-                total: datos.total
-            });
-            alert("Email enviado.");
+            await emailjs.send("service_t5t4wor", "template_acd00wp", {to_email: d.mail, to_name: d.cliente, total: d.total});
+            alert("Email enviado correctamente");
         }
-    } catch (e) {
-        console.error(e);
-        alert("Error: " + e.message);
-    } finally {
-        btn.innerText = "GENERAR, DESCARGAR Y ENVIAR";
-        btn.disabled = false;
-    }
+    } catch(e) { alert("Error: " + e.message); }
+
+    btn.disabled = false;
+    btn.innerText = "GENERAR COMPROBANTE";
 }
 
-// Carga inicial
-window.onload = () => {
-    adaptarCampos();
-    updatePreview();
-};
+// Init
+window.onload = updatePreview;
