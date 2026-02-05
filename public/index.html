@@ -18,8 +18,13 @@
 
     <div class="main-grid">
         <div class="card panel-datos">
-            <h3><span class="icon">📝</span> Datos de Facturación</h3>
+            <h3>📝 Datos del Comprobante</h3>
             <form id="facturaForm">
+                <div class="form-group">
+                    <label>Empresa / Entidad Emisora (Remitente)</label>
+                    <input type="text" id="empresaEmisora" placeholder="Tu Empresa o Nombre" required>
+                </div>
+
                 <div class="row">
                     <div class="form-group">
                         <label>Tipo Comprobante</label>
@@ -30,29 +35,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Concepto</label>
-                        <select id="concepto" onchange="toggleFechas()">
-                            <option value="Productos">Productos</option>
-                            <option value="Servicios">Servicios</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Nombre / Razón Social</label>
-                    <input type="text" id="nombre" placeholder="Nombre del cliente" required>
-                </div>
-
-                <div id="camposExtra" class="form-group"></div>
-
-                <div id="seccionFechas" class="row hidden">
-                    <div class="form-group">
-                        <label>Período Desde</label>
-                        <input type="date" id="fechaDesde">
-                    </div>
-                    <div class="form-group">
-                        <label>Período Hasta</label>
-                        <input type="date" id="fechaHasta">
+                        <label>Nombre del Cliente</label>
+                        <input type="text" id="nombre" placeholder="Nombre del receptor" required>
                     </div>
                 </div>
 
@@ -67,7 +51,7 @@
                         <input type="number" id="precio" step="0.01" placeholder="0.00" required>
                     </div>
                     <div class="form-group">
-                        <label>Fecha de Emisión</label>
+                        <label>Fecha Emisión</label>
                         <input type="date" id="fechaManual">
                     </div>
                 </div>
@@ -75,17 +59,27 @@
         </div>
 
         <div class="card panel-envio">
-            <h3><span class="icon">🚀</span> Envío y Cobro</h3>
+            <h3>🚀 Canal de Envío</h3>
             <div class="form-group">
+                <label>¿Cómo quieres enviar?</label>
+                <select id="canalEnvio" onchange="toggleCanales()">
+                    <option value="whatsapp">📲 WhatsApp</option>
+                    <option value="email">📧 Correo Electrónico</option>
+                </select>
+            </div>
+
+            <div id="divEmail" class="form-group" style="display: none;">
                 <label>Email de destino</label>
-                <input type="email" id="email" form="facturaForm" placeholder="cliente@correo.com" required>
+                <input type="email" id="email" form="facturaForm" placeholder="cliente@correo.com">
             </div>
-            <div class="form-group">
-                <label>WhatsApp</label>
-                <input type="tel" id="telefono" form="facturaForm" placeholder="54911..." required>
+
+            <div id="divWhatsApp" class="form-group">
+                <label>WhatsApp (Cod. País + Nro)</label>
+                <input type="tel" id="telefono" form="facturaForm" placeholder="54911...">
             </div>
+
             <div class="form-group">
-                <label>Estado Inicial</label>
+                <label>Estado de Cobro</label>
                 <select id="estadoPago" form="facturaForm">
                     <option value="pendiente">🟠 Pendiente</option>
                     <option value="pagado">🟢 Pagado</option>
@@ -93,36 +87,35 @@
             </div>
 
             <button type="submit" form="facturaForm" class="btn-primary" id="btnGenerar">
-                💾 Guardar y Generar PDF
+                💾 Guardar, Descargar y Enviar
             </button>
+            <p style="font-size: 11px; color: #666; margin-top: 10px; text-align: center;">Los datos NO se borrarán al terminar para que puedas revisarlos.</p>
         </div>
     </div>
 
     <div class="card panel-preview">
-        <div id="facturaLive" class="factura-preview-box">
+        <div class="factura-preview-box">
             <div class="preview-header">
                 <div id="pre-tipo">C</div>
-                <div class="emisor-mini"><strong>MI EMPRESA</strong><br>CUIT: 30-12345678-9</div>
+                <div><strong id="pre-emisor">EMPRESA</strong><br>Comprobante Digital</div>
             </div>
-            <div class="preview-content">
-                <p><strong>Concepto:</strong> <span id="pre-concepto">Productos</span></p>
-                <p><strong>Cliente:</strong> <span id="pre-nombre">...</span></p>
-                <p><strong>Detalle:</strong> <span id="pre-detalle">...</span></p>
-                <div class="preview-total"><span>TOTAL:</span><span id="pre-total">$ 0.00</span></div>
-            </div>
+            <p><strong>Cliente:</strong> <span id="pre-nombre">...</span></p>
+            <p><strong>Detalle:</strong> <span id="pre-detalle">...</span></p>
+            <div class="preview-total"><span>TOTAL:</span><span id="pre-total">$ 0.00</span></div>
         </div>
     </div>
 
     <div class="card panel-historial">
-        <h3>📋 Historial</h3>
+        <h3>📋 Historial Reciente</h3>
         <div class="table-container">
             <table>
-                <thead><tr><th>Fecha</th><th>Tipo</th><th>Cliente</th><th>Monto</th><th>Estado</th><th>Acción</th></tr></thead>
+                <thead><tr><th>Fecha</th><th>Emisor</th><th>Cliente</th><th>Monto</th><th>Estado</th></tr></thead>
                 <tbody id="tablaBody"></tbody>
             </table>
         </div>
     </div>
 </div>
+
 <script type="module" src="script.js"></script>
 </body>
 </html>
