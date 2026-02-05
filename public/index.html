@@ -5,8 +5,12 @@
     <title>Facturador Pro - Sistema de Gestión</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -17,7 +21,7 @@
 
     <div class="main-grid">
         <div class="card panel-emisor">
-            <h3>🏢 Datos del Emisor (Vos)</h3>
+            <h3>🏢 Emisor (Tus Datos)</h3>
             <div class="form-group">
                 <label>Razón Social / Nombre</label>
                 <input type="text" id="emisorNombre" placeholder="Tu Empresa" oninput="updatePreview()">
@@ -43,10 +47,14 @@
                 <input type="text" id="clienteNombre" placeholder="Nombre del cliente" oninput="updatePreview()">
             </div>
             <div id="camposDinamicosCliente">
+                <div class="form-group">
+                    <label>DNI / CUIT</label>
+                    <input type="text" id="clienteId" placeholder="DNI o CUIT" oninput="updatePreview()">
                 </div>
+            </div>
             <div class="form-group">
-                <label>Dirección (Opcional)</label>
-                <input type="text" id="clienteDir" placeholder="Calle 123, Ciudad">
+                <label>Dirección</label>
+                <input type="text" id="clienteDir" placeholder="Calle 123, Ciudad" oninput="updatePreview()">
             </div>
         </div>
     </div>
@@ -54,10 +62,7 @@
     <div class="main-grid">
         <div class="card panel-detalles">
             <h3>📦 Detalles de Facturación</h3>
-            <div class="form-group">
-                <label>Descripción del Servicio/Producto</label>
-                <textarea id="detalle" placeholder="Ej: Abono servicios digitales..." oninput="updatePreview()"></textarea>
-            </div>
+            <textarea id="detalle" placeholder="Descripción del servicio..." oninput="updatePreview()"></textarea>
             <div class="row">
                 <div class="form-group">
                     <label>Importe Total ($)</label>
@@ -80,14 +85,12 @@
                 </select>
             </div>
             <div id="inputWhatsApp" class="form-group">
-                <label>Número WhatsApp</label>
-                <input type="tel" id="telefono" placeholder="54911...">
+                <input type="tel" id="telefono" placeholder="WhatsApp (54911...)">
             </div>
             <div id="inputEmail" class="form-group" style="display:none">
-                <label>Correo Electrónico</label>
                 <input type="email" id="email" placeholder="cliente@correo.com">
             </div>
-            <button type="button" class="btn-primary" onclick="procesarFactura()">DESCARGAR Y ENVIAR</button>
+            <button type="button" class="btn-primary" onclick="procesarFactura()">GENERAR, DESCARGAR Y ENVIAR</button>
         </div>
     </div>
 
@@ -97,13 +100,14 @@
                 <div id="pre-tipo">C</div>
                 <div class="header-datos">
                     <strong id="pre-emisor">EMPRESA</strong><br>
-                    CUIT: <span id="pre-emisor-cuit">...</span>
+                    <span id="pre-emisor-cuit">CUIT</span>
                 </div>
             </div>
             <div class="factura-body">
                 <p><strong>Cliente:</strong> <span id="pre-cliente">...</span></p>
-                <p id="pre-extra-cliente"></p>
-                <p><strong>Detalle:</strong> <span id="pre-detalle">...</span></p>
+                <p><strong>ID Cliente:</strong> <span id="pre-cliente-id">...</span></p>
+                <p><strong>Dirección:</strong> <span id="pre-cliente-dir">...</span></p>
+                <p><strong>Concepto:</strong> <span id="pre-detalle">...</span></p>
                 <hr>
                 <div class="factura-total">TOTAL: <span id="pre-total">$ 0.00</span></div>
             </div>
