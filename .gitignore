@@ -1,0 +1,14 @@
+# Node
+node_modules/
+npm-debug.log
+functions/node_modules/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+pubsub-debug.log
+
+# Otros
+.DS_Store
+.env

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Facturas Argentina</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📄 Facturador Digital Pro</h2>
+        <p style="text-align: center; font-size: 0.8em; color: #666;">Inspirado en formato AA2000</p>
+        
+        <form id="facturaForm">
+            <label for="nombre">Nombre o Razón Social</label>
+            <input type="text" id="nombre" placeholder="Ej: Juan Pérez" required>
+
+            <label for="dni">CUIT / DNI</label>
+            <input type="number" id="dni" placeholder="Sin guiones" required>
+
+            <label for="email">Email del Cliente</label>
+            <input type="email" id="email" placeholder="Para enviar el comprobante" required>
+
+            <label for="telefono">WhatsApp</label>
+            <input type="tel" id="telefono" placeholder="Ej: 5491166778899" required>
+
+            <hr>
+
+            <label for="tipoFactura">Tipo de Comprobante</label>
+            <select id="tipoFactura">
+                <option value="B">Factura B (Consumidor Final)</option>
+                <option value="A">Factura A (Inscripto a Inscripto)</option>
+                <option value="C">Monotributo C</option>
+            </select>
+
+            <label for="tipoItem">Concepto</label>
+            <select id="tipoItem" onchange="toggleServicio()">
+                <option value="objeto">Objeto / Producto</option>
+                <option value="servicio">Servicio / Estadía</option>
+            </select>
+
+            <div id="divServicio" class="hidden">
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label>Entrada</label>
+                        <input type="datetime-local" id="fechaE">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Salida</label>
+                        <input type="datetime-local" id="fechaS">
+                    </div>
+                </div>
+            </div>
+
+            <label for="detalle">Descripción adicional</label>
+            <input type="text" id="detalle" placeholder="Ej: Patente LKQ562 o Mes de abono">
+
+            <label for="precio">Monto Total ($)</label>
+            <input type="number" id="precio" step="0.01" placeholder="Monto final a cobrar" required>
+
+            <button type="submit" id="btnGuardar">Generar, Guardar y Enviar</button>
+        </form>
+    </div>
+
+    <script type="module" src="script.js"></script>
+
+    <script>
+        // Función para mostrar/ocultar campos de fecha si es servicio
+        function toggleServicio() {
+            const esServicio = document.getElementById('tipoItem').value === 'servicio';
+            const div = document.getElementById('divServicio');
+            if (esServicio) {
+                div.classList.remove('hidden');
+            } else {
+                div.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
