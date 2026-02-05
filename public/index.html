@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facturador Pro - UI Dual</title>
+    <title>Facturador Pro - Versión Full</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -13,64 +13,53 @@
         :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --card: #ffffff; --border: #e2e8f0; }
         body.dark-mode { --bg: #0f172a; --text: #f1f5f9; --card: #1e293b; --border: #334155; }
         
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; transition: 0.3s; margin: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 0; margin: 0; transition: 0.3s; }
         
-        /* Layout Principal */
-        .app-grid { 
-            display: grid; 
-            grid-template-columns: 400px 1fr; 
-            gap: 20px; 
-            max-width: 1400px; 
-            margin: 0 auto; 
-        }
+        .app-grid { display: grid; grid-template-columns: 420px 1fr; height: 100vh; }
 
-        /* Panel de Carga */
-        .sidebar { height: fit-content; position: sticky; top: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        /* Panel de Carga (Izquierda) */
+        .sidebar { background: var(--card); border-right: 1px solid var(--border); padding: 25px; overflow-y: auto; transition: 0.3s; }
+        h2 { font-size: 1.2rem; margin-bottom: 20px; border-bottom: 2px solid var(--primary); display: inline-block; }
+        h3 { font-size: 0.7rem; text-transform: uppercase; color: #64748b; margin-top: 20px; margin-bottom: 10px; letter-spacing: 1px; }
         
-        .form-section { margin-bottom: 20px; }
-        h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 15px; }
-        
+        .form-group { margin-bottom: 10px; }
+        label { font-size: 0.75rem; font-weight: 700; display: block; margin-bottom: 4px; }
         input, select, textarea { 
-            width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 12px;
-            border: 1px solid var(--border); border-radius: 8px; 
-            background: var(--card); color: var(--text); font-size: 0.9rem;
+            width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; 
+            background: var(--card); color: var(--text); font-size: 0.9rem; box-sizing: border-box;
         }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         .btn-primary { 
             background: var(--primary); color: white; border: none; padding: 16px; 
-            width: 100%; border-radius: 10px; font-weight: 700; cursor: pointer; 
-            transition: transform 0.1s;
+            width: 100%; border-radius: 10px; font-weight: 700; cursor: pointer; margin-top: 20px;
         }
-        .btn-primary:active { transform: scale(0.98); }
 
-        /* Preview de Factura (Papel) */
-        .preview-area { display: flex; justify-content: center; background: #525659; padding: 40px; border-radius: 12px; overflow-x: auto; }
+        /* Area de Preview (Derecha) */
+        .preview-area { background: #525659; display: flex; justify-content: center; padding: 40px; overflow-y: auto; }
         
         #factura-papel { 
             background: white; color: black; width: 210mm; min-height: 297mm; 
-            padding: 15mm; box-sizing: border-box; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            padding: 20mm; box-sizing: border-box; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
-        /* Estilos Internos Factura */
-        .f-cabecera { display: flex; border: 1px solid #000; height: 120px; }
-        .f-info-empresa { flex: 1; padding: 15px; font-size: 0.9rem; }
-        .f-letra { width: 70px; border-left: 1px solid #000; border-right: 1px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; }
-        .f-info-factura { flex: 1; padding: 15px; text-align: right; }
-        
-        .f-cliente { border: 1px solid #000; border-top: none; padding: 15px; font-size: 0.9rem; line-height: 1.8; }
-        .f-tabla-head { display: grid; grid-template-columns: 1fr 150px; border: 1px solid #000; border-top: none; background: #eee; padding: 5px 15px; font-weight: bold; }
-        .f-linea { display: grid; grid-template-columns: 1fr 150px; border: 1px solid #000; border-top: none; min-height: 400px; }
-        .f-linea > div { padding: 15px; border-right: 1px solid #000; }
-        .f-total-box { border: 1px solid #000; border-top: none; padding: 15px; text-align: right; font-size: 1.8rem; font-weight: bold; }
-
-        .btn-theme { position: fixed; bottom: 20px; right: 20px; padding: 12px; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; border: none; background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-
-        @media (max-width: 1000px) {
-            .app-grid { grid-template-columns: 1fr; }
-            .sidebar { position: static; }
-            #factura-papel { width: 100%; height: auto; padding: 5mm; }
+        /* Diseño de la Factura */
+        .f-header { display: flex; border: 1px solid #000; height: 130px; }
+        .f-box-left, .f-box-right { flex: 1; padding: 15px; }
+        .f-letra-box { 
+            width: 80px; border-left: 1px solid #000; border-right: 1px solid #000; 
+            background: #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; 
         }
+        .f-letra-box h1 { margin: 0; font-size: 3rem; }
+
+        .f-cliente-datos { border: 1px solid #000; border-top: none; padding: 15px; font-size: 0.9rem; line-height: 1.6; }
+        .f-items-header { display: grid; grid-template-columns: 4fr 1fr; border: 1px solid #000; border-top: none; background: #eee; padding: 5px 15px; font-weight: bold; }
+        .f-items-body { border: 1px solid #000; border-top: none; min-height: 450px; display: grid; grid-template-columns: 4fr 1fr; }
+        .f-items-body div { padding: 15px; }
+        .f-col-desc { border-right: 1px solid #000; }
+        .f-total-row { border: 1px solid #000; border-top: none; padding: 15px; text-align: right; font-size: 2rem; font-weight: bold; }
+
+        .btn-theme { position: fixed; bottom: 20px; left: 20px; padding: 10px; border-radius: 50%; cursor: pointer; border: none; background: var(--primary); color: white; }
     </style>
 </head>
 <body>
@@ -79,65 +68,76 @@
 
 <div class="app-grid">
     <div class="sidebar">
-        <div class="card">
-            <div class="form-section">
-                <h3>🏢 Mi Empresa</h3>
-                <input type="text" id="eNom" value="Aero 2000" oninput="render()">
-                <input type="text" id="eCuit" value="30-12345678-9" oninput="render()">
-            </div>
+        <h2>Panel de Carga</h2>
+        
+        <h3>🏢 Tus Datos (Emisor)</h3>
+        <input type="text" id="eNom" value="Aero 2000" oninput="render()">
+        <input type="text" id="eCuit" value="30-12345678-9" oninput="render()">
+        <select id="tFac" onchange="render()">
+            <option value="C">FACTURA C</option>
+            <option value="B">FACTURA B</option>
+            <option value="A">FACTURA A</option>
+        </select>
 
-            <div class="form-section">
-                <h3>👤 Cliente</h3>
-                <input type="text" id="cNom" placeholder="Nombre del Cliente" oninput="render()">
-                <input type="email" id="email" placeholder="Email para el envío">
-            </div>
-
-            <div class="form-section">
-                <h3>📦 Venta</h3>
-                <textarea id="det" placeholder="Descripción..." oninput="render()" style="height: 80px;"></textarea>
-                <input type="number" id="monto" placeholder="Monto Total $" oninput="render()">
-            </div>
-
-            <button onclick="generarTodo()" class="btn-primary" id="btnGo">DESCARGAR Y ENVIAR PDF</button>
+        <h3>👤 Datos del Cliente</h3>
+        <input type="text" id="cNom" placeholder="Nombre / Razón Social" oninput="render()">
+        <div class="row">
+            <input type="text" id="cId" placeholder="CUIT / DNI" oninput="render()">
+            <select id="cIva" onchange="render()">
+                <option>Consumidor Final</option>
+                <option>Responsable Inscripto</option>
+                <option>Exento</option>
+            </select>
         </div>
+        <input type="text" id="cDir" placeholder="Dirección del Cliente" oninput="render()">
+        <input type="email" id="email" placeholder="Email para envío">
+
+        <h3>📦 Concepto y Monto</h3>
+        <textarea id="det" placeholder="Detalle del servicio..." oninput="render()" style="height: 80px;"></textarea>
+        <div class="row">
+            <input type="number" id="monto" placeholder="Total $" oninput="render()">
+            <input type="date" id="fec" onchange="render()">
+        </div>
+
+        <button onclick="generarTodo()" class="btn-primary" id="btnGo">DESCARGAR Y ENVIAR PDF</button>
     </div>
 
     <div class="preview-area">
         <div id="factura-papel">
-            <div class="f-cabecera">
-                <div class="f-info-empresa">
-                    <strong id="p-eNom" style="font-size: 1.2rem;">AERO 2000</strong><br>
+            <div class="f-header">
+                <div class="f-box-left">
+                    <strong id="p-eNom" style="font-size: 1.4rem;">AERO 2000</strong><br>
                     <span>Responsable Monotributo</span><br>
                     <span>CUIT: <span id="p-eCuit">30-12345678-9</span></span>
                 </div>
-                <div class="f-letra">
-                    <h1 style="margin:0">C</h1>
+                <div class="f-letra-box">
+                    <h1 id="p-letra">C</h1>
                     <small>COD. 011</small>
                 </div>
-                <div class="f-info-factura">
+                <div class="f-box-right" style="text-align: right;">
                     <h2 style="margin:0">FACTURA</h2>
                     <span>Fecha: <span id="p-fec">--/--/--</span></span><br>
                     <span>Nro: 0001-00000001</span>
                 </div>
             </div>
-            
-            <div class="f-cliente">
-                <strong>CLIENTE:</strong> <span id="p-cNom">...</span><br>
-                <strong>CONDICIÓN IVA:</strong> Consumidor Final<br>
-                <strong>DOMICILIO:</strong> Argentina
+
+            <div class="f-cliente-datos">
+                <strong>Apellido y Nombre / Razón Social:</strong> <span id="p-cNom">...</span><br>
+                <strong>CUIT / DNI:</strong> <span id="p-cId">...</span><br>
+                <strong>Condición IVA:</strong> <span id="p-cIva">Consumidor Final</span><br>
+                <strong>Domicilio:</strong> <span id="p-cDir">...</span>
             </div>
 
-            <div class="f-tabla-head">
+            <div class="f-items-header">
                 <span>DESCRIPCIÓN</span>
                 <span style="text-align: right;">SUBTOTAL</span>
             </div>
-            
-            <div class="f-linea">
-                <div id="p-det">...</div>
+            <div class="f-items-body">
+                <div class="f-col-desc" id="p-det">...</div>
                 <div style="text-align: right; font-weight: bold;" id="p-sub">$ 0.00</div>
             </div>
 
-            <div class="f-total-box">
+            <div class="f-total-row">
                 TOTAL: <span id="p-tot">$ 0.00</span>
             </div>
         </div>
@@ -148,14 +148,25 @@
     emailjs.init("ne2_1nbxGq2hC0ju1");
 
     function render() {
+        // Datos Emisor
         document.getElementById('p-eNom').innerText = document.getElementById('eNom').value.toUpperCase();
         document.getElementById('p-eCuit').innerText = document.getElementById('eCuit').value;
+        document.getElementById('p-letra').innerText = document.getElementById('tFac').value;
+        
+        // Datos Cliente
         document.getElementById('p-cNom').innerText = document.getElementById('cNom').value.toUpperCase() || "...";
+        document.getElementById('p-cId').innerText = document.getElementById('cId').value || "...";
+        document.getElementById('p-cIva').innerText = document.getElementById('cIva').value;
+        document.getElementById('p-cDir').innerText = document.getElementById('cDir').value || "...";
+        
+        // Detalle y Totales
         document.getElementById('p-det').innerText = document.getElementById('det').value || "...";
         const val = document.getElementById('monto').value || "0.00";
         document.getElementById('p-tot').innerText = "$ " + val;
         document.getElementById('p-sub').innerText = "$ " + val;
-        document.getElementById('p-fec').innerText = new Date().toLocaleDateString();
+        
+        const fechaIn = document.getElementById('fec').value;
+        document.getElementById('p-fec').innerText = fechaIn ? fechaIn.split('-').reverse().join('/') : new Date().toLocaleDateString();
     }
 
     async function generarTodo() {
@@ -163,29 +174,19 @@
         const element = document.getElementById('factura-papel');
         const mail = document.getElementById('email').value;
 
-        btn.disabled = true;
-        btn.innerText = "PROCESANDO...";
+        btn.disabled = true; btn.innerText = "CAPTURANDO...";
 
         try {
-            // Captura el área blanca de la factura
-            const canvas = await html2canvas(element, { 
-                scale: 2,
-                useCORS: true,
-                logging: false
-            });
+            const canvas = await html2canvas(element, { scale: 2 });
             const imgData = canvas.toDataURL('image/png');
-
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            
-            // Descarga
-            pdf.save(`Factura_${Date.now()}.pdf`);
+            pdf.save(`Factura_${document.getElementById('cNom').value || 'SinNombre'}.pdf`);
 
-            // Email
             if(mail) {
                 const base64 = pdf.output('datauristring').split(',')[1];
                 await emailjs.send("service_t5t4wor", "template_vyjg8af", {
@@ -193,16 +194,14 @@
                     content: base64,
                     to_name: document.getElementById('cNom').value
                 });
-                alert("¡PDF enviado con éxito!");
+                alert("¡Descargada y enviada al mail!");
             }
         } catch (e) {
             alert("Error: " + e.message);
         } finally {
-            btn.disabled = false;
-            btn.innerText = "DESCARGAR Y ENVIAR PDF";
+            btn.disabled = false; btn.innerText = "DESCARGAR Y ENVIAR PDF";
         }
     }
-
     window.onload = render;
 </script>
 </body>
