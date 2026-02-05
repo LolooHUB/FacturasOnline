@@ -3,54 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facturador Pro - Mobile Ready</title>
-    
+    <title>Facturador Pro v3</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
     <style>
         :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --card: #ffffff; --border: #e2e8f0; }
         body.dark-mode { --bg: #0f172a; --text: #f1f5f9; --card: #1e293b; --border: #334155; }
-        
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 15px; transition: 0.3s; margin: 0; }
-        .app-container { max-width: 1100px; margin: 0 auto; }
-        
-        /* Layout responsivo */
-        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; transition: 0.3s; }
+        .app-container { max-width: 900px; margin: 0 auto; }
+        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        h3 { font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        label { display: block; font-size: 0.7rem; font-weight: 700; margin-bottom: 3px; opacity: 0.8; }
+        h3 { font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; background: var(--card); color: var(--text); margin-bottom: 10px; }
-        
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .btn { padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.85rem; transition: 0.2s; text-align: center; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.85rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-whatsapp { background: #25d366; color: white; }
-        .btn-theme { position: fixed; top: 15px; right: 15px; width: 35px; height: 35px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); cursor: pointer; color: var(--text); z-index: 100; }
-
-        /* PREVIEW ADAPTABLE */
-        .preview-container { margin-top: 20px; display: flex; justify-content: center; width: 100%; overflow-x: hidden; }
+        .btn-theme { position: fixed; top: 15px; right: 15px; width: 35px; height: 35px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); cursor: pointer; z-index: 100; }
+        
+        /* PREVIEW RESPONSIVE */
+        .preview-area { margin-top: 20px; display: flex; justify-content: center; }
         #factura-papel { 
-            background: white; color: black; 
-            width: 100%; max-width: 800px; /* Se adapta al ancho del dispositivo */
-            min-height: 500px; padding: 20px; 
-            box-sizing: border-box; border: 1px solid #000; font-size: 0.8rem;
+            background: white; color: black; width: 100%; max-width: 600px; 
+            padding: 20px; border: 1px solid #000; font-size: 0.8rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
-        .f-header { display: flex; border: 1px solid #000; margin-bottom: 0; }
-        .f-col { flex: 1; padding: 8px; overflow: hidden; }
-        .f-letra { width: 45px; border-left: 1px solid #000; border-right: 1px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; }
-        .f-cliente { border: 1px solid #000; border-top: none; padding: 10px; line-height: 1.4; }
-        .f-items-h { display: grid; grid-template-columns: 2fr 1fr; background: #eee; border: 1px solid #000; border-top: none; padding: 5px 10px; font-weight: bold; }
-        .f-items-b { border: 1px solid #000; border-top: none; min-height: 150px; display: grid; grid-template-columns: 2fr 1fr; }
-        .f-items-b div { padding: 10px; border-right: 1px solid #000; }
-        .f-total { border: 1px solid #000; border-top: none; padding: 10px; text-align: right; font-size: 1.3rem; font-weight: bold; }
-
+        .f-header { display: flex; border: 1px solid #000; margin-bottom: 10px; }
+        .f-col { flex: 1; padding: 10px; }
+        .f-letra { width: 50px; border-left: 1px solid #000; border-right: 1px solid #000; display: flex; align-items: center; justify-content: center; background: #eee; font-weight: bold; font-size: 1.5rem; }
+        .f-total { border: 1px solid #000; padding: 10px; text-align: right; font-size: 1.2rem; font-weight: bold; margin-top: 10px; }
+        
         @media (max-width: 600px) {
-            .f-header { flex-direction: column; height: auto; }
-            .f-letra { width: 100%; border: none; border-top: 1px solid #000; border-bottom: 1px solid #000; height: 40px; }
-            .f-col { text-align: left !important; }
+            .f-header { flex-direction: column; }
+            .f-letra { width: 100%; border: none; border-top: 1px solid #000; border-bottom: 1px solid #000; }
         }
     </style>
 </head>
@@ -62,41 +46,24 @@
     <div class="main-grid">
         <div class="card">
             <h3>🏢 Mis Datos</h3>
-            <label>Empresa</label>
             <input type="text" id="eNom" value="Aero 2000" oninput="render()">
-            <label>Mi CUIT</label>
             <input type="text" id="eCuit" value="30-12345678-9" oninput="render()">
-            <label>CBU / Alias (Para Cobrar)</label>
-            <input type="text" id="ePago" placeholder="Alias.mercado.pago" value="AERO.2000.MP">
+            <input type="text" id="ePago" value="ALIAS.PAGO.MP" placeholder="Alias o CBU">
         </div>
-
         <div class="card">
             <h3>👤 Cliente</h3>
             <input type="text" id="cNom" placeholder="Nombre Cliente" oninput="render()">
             <input type="text" id="cId" placeholder="CUIT / DNI" oninput="render()">
-            <input type="text" id="cDir" placeholder="Dirección" oninput="render()">
-            <select id="cIva" onchange="render()">
-                <option>Consumidor Final</option>
-                <option>Monotributista</option>
-                <option>Resp. Inscripto</option>
-            </select>
+            <input type="email" id="email" placeholder="email@cliente.com">
+            <input type="tel" id="tel" placeholder="WhatsApp (549...)">
         </div>
     </div>
 
-    <div class="main-grid">
-        <div class="card">
-            <h3>📦 Facturación</h3>
-            <textarea id="det" placeholder="Detalle..." oninput="render()"></textarea>
-            <div style="display:flex; gap:10px">
-                <input type="number" id="monto" placeholder="Total $" oninput="render()">
-                <input type="date" id="fec" onchange="render()">
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>🚀 Envío</h3>
-            <input type="email" id="email" placeholder="mail@cliente.com">
-            <input type="tel" id="tel" placeholder="WhatsApp (Ej: 54911...)">
+    <div class="card">
+        <h3>📦 Venta</h3>
+        <textarea id="det" placeholder="Concepto..." oninput="render()"></textarea>
+        <div class="btn-group">
+            <input type="number" id="monto" placeholder="Monto $" oninput="render()">
             <div class="btn-group">
                 <button onclick="enviar('mail')" class="btn btn-primary" id="btnM">📧 Mail</button>
                 <button onclick="enviar('wa')" class="btn btn-whatsapp">🟢 WhatsApp</button>
@@ -104,150 +71,19 @@
         </div>
     </div>
 
-    <div class="preview-container">
+    <div class="preview-area">
         <div id="factura-papel">
             <div class="f-header">
                 <div class="f-col"><strong id="p-eNom">AERO 2000</strong><br>CUIT: <span id="p-eCuit">...</span></div>
-                <div class="f-letra"><h1>C</h1></div>
-                <div class="f-col" style="text-align: right;"><strong>FACTURA</strong><br>Fecha: <span id="p-fec">--/--/--</span></div>
+                <div class="f-letra">C</div>
+                <div class="f-col" style="text-align: right;"><strong>FACTURA</strong><br><span id="p-fec"></span></div>
             </div>
-            <div class="f-cliente">
+            <div style="padding:10px; border:1px solid #000; border-top:none">
                 <strong>Cliente:</strong> <span id="p-cNom">...</span><br>
-                <strong>CUIT/DNI:</strong> <span id="p-cId">...</span> | <span id="p-cIva">Cons. Final</span><br>
-                <strong>Dir:</strong> <span id="p-cDir">...</span>
+                <strong>DNI/CUIT:</strong> <span id="p-cId">...</span>
             </div>
-            <div class="f-items-h"><span>Descripción</span><span style="text-align:right">Subtotal</span></div>
-            <div class="f-items-b">
-                <div id="p-det">...</div>
-                <div id="p-sub" style="text-align:right; font-weight:bold;">$ 0.00</div>
-            </div>
-            <div class="f-total">TOTAL: <span id="p-tot">$ 0.00</span></div>
-        </div>
-    </div>
-</div>
-
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facturador Pro - Mobile Ready</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
-    <style>
-        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --card: #ffffff; --border: #e2e8f0; }
-        body.dark-mode { --bg: #0f172a; --text: #f1f5f9; --card: #1e293b; --border: #334155; }
-        
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 15px; transition: 0.3s; margin: 0; }
-        .app-container { max-width: 1100px; margin: 0 auto; }
-        
-        /* Layout responsivo */
-        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        
-        h3 { font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin: 0 0 15px 0; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        label { display: block; font-size: 0.7rem; font-weight: 700; margin-bottom: 3px; opacity: 0.8; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; background: var(--card); color: var(--text); margin-bottom: 10px; }
-        
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .btn { padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.85rem; transition: 0.2s; text-align: center; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-whatsapp { background: #25d366; color: white; }
-        .btn-theme { position: fixed; top: 15px; right: 15px; width: 35px; height: 35px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); cursor: pointer; color: var(--text); z-index: 100; }
-
-        /* PREVIEW ADAPTABLE */
-        .preview-container { margin-top: 20px; display: flex; justify-content: center; width: 100%; overflow-x: hidden; }
-        #factura-papel { 
-            background: white; color: black; 
-            width: 100%; max-width: 800px; /* Se adapta al ancho del dispositivo */
-            min-height: 500px; padding: 20px; 
-            box-sizing: border-box; border: 1px solid #000; font-size: 0.8rem;
-        }
-
-        .f-header { display: flex; border: 1px solid #000; margin-bottom: 0; }
-        .f-col { flex: 1; padding: 8px; overflow: hidden; }
-        .f-letra { width: 45px; border-left: 1px solid #000; border-right: 1px solid #000; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #eee; }
-        .f-cliente { border: 1px solid #000; border-top: none; padding: 10px; line-height: 1.4; }
-        .f-items-h { display: grid; grid-template-columns: 2fr 1fr; background: #eee; border: 1px solid #000; border-top: none; padding: 5px 10px; font-weight: bold; }
-        .f-items-b { border: 1px solid #000; border-top: none; min-height: 150px; display: grid; grid-template-columns: 2fr 1fr; }
-        .f-items-b div { padding: 10px; border-right: 1px solid #000; }
-        .f-total { border: 1px solid #000; border-top: none; padding: 10px; text-align: right; font-size: 1.3rem; font-weight: bold; }
-
-        @media (max-width: 600px) {
-            .f-header { flex-direction: column; height: auto; }
-            .f-letra { width: 100%; border: none; border-top: 1px solid #000; border-bottom: 1px solid #000; height: 40px; }
-            .f-col { text-align: left !important; }
-        }
-    </style>
-</head>
-<body>
-
-<button class="btn-theme" onclick="document.body.classList.toggle('dark-mode')">🌓</button>
-
-<div class="app-container">
-    <div class="main-grid">
-        <div class="card">
-            <h3>🏢 Mis Datos</h3>
-            <label>Empresa</label>
-            <input type="text" id="eNom" value="Aero 2000" oninput="render()">
-            <label>Mi CUIT</label>
-            <input type="text" id="eCuit" value="30-12345678-9" oninput="render()">
-            <label>CBU / Alias (Para Cobrar)</label>
-            <input type="text" id="ePago" placeholder="Alias.mercado.pago" value="AERO.2000.MP">
-        </div>
-
-        <div class="card">
-            <h3>👤 Cliente</h3>
-            <input type="text" id="cNom" placeholder="Nombre Cliente" oninput="render()">
-            <input type="text" id="cId" placeholder="CUIT / DNI" oninput="render()">
-            <input type="text" id="cDir" placeholder="Dirección" oninput="render()">
-            <select id="cIva" onchange="render()">
-                <option>Consumidor Final</option>
-                <option>Monotributista</option>
-                <option>Resp. Inscripto</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="main-grid">
-        <div class="card">
-            <h3>📦 Facturación</h3>
-            <textarea id="det" placeholder="Detalle..." oninput="render()"></textarea>
-            <div style="display:flex; gap:10px">
-                <input type="number" id="monto" placeholder="Total $" oninput="render()">
-                <input type="date" id="fec" onchange="render()">
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>🚀 Envío</h3>
-            <input type="email" id="email" placeholder="mail@cliente.com">
-            <input type="tel" id="tel" placeholder="WhatsApp (Ej: 54911...)">
-            <div class="btn-group">
-                <button onclick="enviar('mail')" class="btn btn-primary" id="btnM">📧 Mail</button>
-                <button onclick="enviar('wa')" class="btn btn-whatsapp">🟢 WhatsApp</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="preview-container">
-        <div id="factura-papel">
-            <div class="f-header">
-                <div class="f-col"><strong id="p-eNom">AERO 2000</strong><br>CUIT: <span id="p-eCuit">...</span></div>
-                <div class="f-letra"><h1>C</h1></div>
-                <div class="f-col" style="text-align: right;"><strong>FACTURA</strong><br>Fecha: <span id="p-fec">--/--/--</span></div>
-            </div>
-            <div class="f-cliente">
-                <strong>Cliente:</strong> <span id="p-cNom">...</span><br>
-                <strong>CUIT/DNI:</strong> <span id="p-cId">...</span> | <span id="p-cIva">Cons. Final</span><br>
-                <strong>Dir:</strong> <span id="p-cDir">...</span>
-            </div>
-            <div class="f-items-h"><span>Descripción</span><span style="text-align:right">Subtotal</span></div>
-            <div class="f-items-b">
-                <div id="p-det">...</div>
-                <div id="p-sub" style="text-align:right; font-weight:bold;">$ 0.00</div>
+            <div style="padding:10px; border:1px solid #000; border-top:none; min-height:100px">
+                <strong>Detalle:</strong><br><span id="p-det">...</span>
             </div>
             <div class="f-total">TOTAL: <span id="p-tot">$ 0.00</span></div>
         </div>
@@ -262,53 +98,51 @@
         document.getElementById('p-eCuit').innerText = document.getElementById('eCuit').value;
         document.getElementById('p-cNom').innerText = document.getElementById('cNom').value.toUpperCase() || "...";
         document.getElementById('p-cId').innerText = document.getElementById('cId').value || "...";
-        document.getElementById('p-cIva').innerText = document.getElementById('cIva').value;
-        document.getElementById('p-cDir').innerText = document.getElementById('cDir').value || "...";
         document.getElementById('p-det').innerText = document.getElementById('det').value || "...";
-        const v = document.getElementById('monto').value || "0";
-        document.getElementById('p-tot').innerText = "$ " + v;
-        document.getElementById('p-sub').innerText = "$ " + v;
-        const f = document.getElementById('fec').value;
-        document.getElementById('p-fec').innerText = f ? f.split('-').reverse().join('/') : new Date().toLocaleDateString();
+        document.getElementById('p-tot').innerText = "$ " + (document.getElementById('monto').value || "0.00");
+        document.getElementById('p-fec').innerText = new Date().toLocaleDateString();
     }
 
     async function enviar(canal) {
         const cliente = document.getElementById('cNom').value || "Cliente";
         const monto = document.getElementById('monto').value || "0";
         const pago = document.getElementById('ePago').value;
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
 
-        try {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-            pdf.text("FACTURA C", 105, 20, {align:'center'});
-            pdf.text(`Emisor: ${document.getElementById('eNom').value}`, 20, 40);
-            pdf.text(`Cliente: ${cliente}`, 20, 55);
-            pdf.text(`Concepto: ${document.getElementById('det').value}`, 20, 70);
-            pdf.text(`TOTAL: $${monto}`, 20, 85);
+        // Diseño PDF texto
+        pdf.setFontSize(18); pdf.text("FACTURA", 105, 20, {align:'center'});
+        pdf.setFontSize(12);
+        pdf.text(`Emisor: ${document.getElementById('eNom').value}`, 20, 40);
+        pdf.text(`Cliente: ${cliente}`, 20, 50);
+        pdf.text(`Total: $${monto}`, 20, 60);
+        pdf.text(`Concepto: ${document.getElementById('det').value}`, 20, 70);
+
+        pdf.save(`Factura_${cliente}.pdf`);
+
+        if (canal === 'mail') {
+            const mail = document.getElementById('email').value;
+            if(!mail) return alert("Falta email");
+            const btn = document.getElementById('btnM');
+            btn.innerText = "Enviando...";
             
-            pdf.save(`Factura_${cliente}.pdf`);
+            const base64 = pdf.output('datauristring').split(',')[1];
+            
+            emailjs.send("service_t5t4wor", "template_vyjg8af", {
+                to_email: mail,
+                to_name: cliente,
+                content: base64 // <-- LA VARIABLE PARA EL ADJUNTO
+            }).then(() => { alert("¡Enviado!"); btn.innerText = "📧 Mail"; })
+              .catch((err) => { alert("Error EmailJS"); console.log(err); });
 
-            if (canal === 'mail') {
-                const btn = document.getElementById('btnM');
-                btn.innerText = "...";
-                const base64 = pdf.output('datauristring').split(',')[1];
-                await emailjs.send("service_t5t4wor", "template_vyjg8af", {
-                    to_email: document.getElementById('email').value,
-                    content: base64,
-                    to_name: cliente
-                });
-                alert("Enviado!");
-                btn.innerText = "📧 Mail";
-            } else {
-                const tel = document.getElementById('tel').value;
-                const txt = `*NUEVA FACTURA*%0A*Cliente:* ${cliente}%0A*Total:* $${monto}%0A*Pago:* ${pago}%0A%0A_El PDF se descargó en mi equipo._`;
-                window.open(`https://api.whatsapp.com/send?phone=${tel}&text=${txt}`, '_blank');
-            }
-        } catch (e) { alert("Error"); }
+        } else {
+            const tel = document.getElementById('tel').value;
+            if(!tel) return alert("Falta WhatsApp");
+            const txt = `*NUEVA FACTURA*%0A*Cliente:* ${cliente}%0A*Total:* $${monto}%0A*CBU/Alias:* ${pago}%0A%0A_PDF descargado._`;
+            window.open(`https://api.whatsapp.com/send?phone=${tel}&text=${txt}`, '_blank');
+        }
     }
     window.onload = render;
 </script>
-</body>
-</html>
 </body>
 </html>
