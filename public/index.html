@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facturador Pro - MODO ESTABLE</title>
+    <title>Facturador Pro - Dark Mode</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -11,225 +11,69 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+        /* VARIABLES DE COLOR */
+        :root { 
+            --primary: #2563eb; 
+            --bg: #f8fafc; 
+            --card: #ffffff; 
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --factura-bg: #ffffff;
+            --factura-text: #000000;
+        }
+
+        /* CLASES MODO OSCURO */
+        body.dark-mode { 
+            --bg: #0f172a; 
+            --card: #1e293b; 
+            --text: #f1f5f9;
+            --border: #334155;
+            --factura-bg: #f8fafc; /* La factura se mantiene clara para legibilidad */
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; transition: 0.3s; }
         .app-container { max-width: 1000px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        h3 { font-size: 0.8rem; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 0; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; }
-        .btn-primary:disabled { background: #94a3b8; }
+        .main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; transition: 0.3s; }
         
-        /* Estilo Factura Preview */
-        .factura-box { border: 2px solid #000; padding: 30px; background: white; color: #000; max-width: 600px; margin: 0 auto; }
-        .f-head { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-        #pre-tipo { font-size: 2.5rem; font-weight: 900; border: 4px solid #000; padding: 0 15px; }
-        .f-total { text-align: right; font-size: 1.8rem; font-weight: 900; border-top: 2px solid #000; margin-top: 20px; }
+        input, select, textarea { 
+            width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; 
+            box-sizing: border-box; margin-top: 5px; background: var(--card); color: var(--text);
+        }
+
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        
+        /* BOTÓN MODO OSCURO */
+        .btn-theme {
+            position: fixed; top: 20px; right: 20px; padding: 10px 15px;
+            border-radius: 50px; border: 1px solid var(--border);
+            background: var(--card); color: var(--text); cursor: pointer;
+            font-weight: bold; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Factura Preview */
+        .factura-box { background: var(--factura-bg); border: 2px solid #000; max-width: 600px; margin: 20px auto; color: #000; font-size: 0.9rem; }
+        .f-top { display: flex; border-bottom: 2px solid #000; padding: 10px; justify-content: space-between; }
+        .f-body { padding: 15px; border-bottom: 2px solid #000; min-height: 120px; }
+        .f-total { padding: 15px; text-align: right; font-size: 1.5rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
+<button class="btn-theme" onclick="toggleDarkMode()">🌓 Cambiar Tema</button>
+
 <div class="app-container">
     <div class="main-grid">
         <div class="card">
-            <h3>🏢 Mis Datos</h3>
-            <div class="form-group">
-                <label>Mi Empresa</label>
-                <input type="text" id="eNom" value="Aero 2000" oninput="doPreview()">
-            </div>
-            <div class="form-group">
-                <label>Mi CUIT</label>
-                <input type="text" id="eCuit" oninput="doPreview()">
-            </div>
-            <div class="form-group">
-                <label>Tipo Comprobante</label>
-                <select id="tFac" onchange="doPreview()">
-                    <option value="C">Monotributo C</option>
-                    <option value="B">Factura B</option>
-                    <option value="A">Factura A</option>
-                </select>
-            </div>
+            <h3>🏢 Datos Emisor</h3>
+            <input type="text" id="eNom" value="Aero 2000" oninput="doPreview()">
+            <input type="text" id="eCuit" placeholder="Tu CUIT" oninput="doPreview()">
+            <select id="tFac" onchange="doPreview()">
+                <option value="C">Factura C</option>
+                <option value="B">Factura B</option>
+                <option value="A">Factura A</option>
+            </select>
         </div>
-
         <div class="card">
-            <h3>👤 Cliente</h3>
-            <div class="form-group">
-                <label>Nombre Cliente</label>
-                <input type="text" id="cNom" oninput="doPreview()">
-            </div>
-            <div class="row">
-                <div class="form-group">
-                    <label>CUIT/DNI Cliente</label>
-                    <input type="text" id="cId" oninput="doPreview()">
-                </div>
-                <div class="form-group">
-                    <label>IVA</label>
-                    <select id="cIva" onchange="doPreview()">
-                        <option>Consumidor Final</option>
-                        <option>Responsable Inscripto</option>
-                        <option>Monotributista</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Dirección</label>
-                <input type="text" id="cDir" oninput="doPreview()">
-            </div>
-        </div>
-    </div>
-
-    <div class="main-grid">
-        <div class="card">
-            <h3>📦 Facturación</h3>
-            <textarea id="det" placeholder="Descripción..." oninput="doPreview()" style="height: 80px;"></textarea>
-            <div class="row">
-                <div class="form-group">
-                    <label>Total $</label>
-                    <input type="number" id="monto" oninput="doPreview()">
-                </div>
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" id="fec">
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>🚀 Envío</h3>
-            <div class="form-group">
-                <label>Canal</label>
-                <select id="canal" onchange="toggleCanal()">
-                    <option value="wa">WhatsApp</option>
-                    <option value="mail">Email</option>
-                </select>
-            </div>
-            <input type="tel" id="tel" placeholder="54911..." style="display: block; margin-bottom: 10px;">
-            <input type="email" id="email" placeholder="mail@cliente.com" style="display: none; margin-bottom: 10px;">
-            
-            <button type="button" onclick="ejecutarTodo()" class="btn-primary" id="btnGo">DESCARGAR Y ENVIAR</button>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="factura-box">
-            <div class="f-head">
-                <div id="pre-tipo">C</div>
-                <div style="text-align: right">
-                    <strong id="p-eNom">Aero 2000</strong><br>
-                    CUIT: <span id="p-eCuit">...</span>
-                </div>
-            </div>
-            <div>
-                <strong>CLIENTE:</strong> <span id="p-cNom">...</span><br>
-                <strong>ID:</strong> <span id="p-cId">...</span><br>
-                <strong>IVA:</strong> <span id="p-cIva">Consumidor Final</span><br>
-                <strong>DIR:</strong> <span id="p-cDir">...</span>
-            </div>
-            <div style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px;">
-                <strong>CONCEPTO:</strong><br>
-                <span id="p-det">...</span>
-            </div>
-            <div class="f-total">TOTAL: <span id="p-tot">$ 0.00</span></div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // Inicialización de Servicios
-    let db;
-    emailjs.init("ne2_1nbxGq2hC0ju1");
-    
-    fetch('/__/firebase/init.json').then(async r => {
-        const config = await r.json();
-        firebase.initializeApp(config);
-        db = firebase.firestore();
-    }).catch(e => console.log("Firebase Offline"));
-
-    // 1. PREVIEW
-    function doPreview() {
-        document.getElementById('p-eNom').innerText = document.getElementById('eNom').value || "EMPRESA";
-        document.getElementById('p-eCuit').innerText = document.getElementById('eCuit').value || "...";
-        document.getElementById('p-cNom').innerText = document.getElementById('cNom').value || "...";
-        document.getElementById('p-cId').innerText = document.getElementById('cId').value || "...";
-        document.getElementById('p-cIva').innerText = document.getElementById('cIva').value;
-        document.getElementById('p-cDir').innerText = document.getElementById('cDir').value || "...";
-        document.getElementById('p-det').innerText = document.getElementById('det').value || "...";
-        document.getElementById('p-tot').innerText = "$ " + (document.getElementById('monto').value || "0.00");
-        document.getElementById('pre-tipo').innerText = document.getElementById('tFac').value;
-    }
-
-    // 2. TOGGLE CANAL
-    function toggleCanal() {
-        const c = document.getElementById('canal').value;
-        document.getElementById('tel').style.display = (c === 'wa') ? 'block' : 'none';
-        document.getElementById('email').style.display = (c === 'mail') ? 'block' : 'none';
-    }
-
-    // 3. EJECUCIÓN
-    async function ejecutarTodo() {
-        const btn = document.getElementById('btnGo');
-        btn.disabled = true;
-        btn.innerText = "PROCESANDO...";
-
-        const data = {
-            emisor: document.getElementById('eNom').value,
-            eCuit: document.getElementById('eCuit').value,
-            cliente: document.getElementById('cNom').value,
-            cId: document.getElementById('cId').value,
-            cIva: document.getElementById('cIva').value,
-            cDir: document.getElementById('cDir').value,
-            detalle: document.getElementById('det').value,
-            total: document.getElementById('monto').value,
-            tipo: document.getElementById('tFac').value,
-            canal: document.getElementById('canal').value,
-            tel: document.getElementById('tel').value,
-            mail: document.getElementById('email').value,
-            fecha: document.getElementById('fec').value || new Date().toLocaleDateString()
-        };
-
-        try {
-            // A. PDF (SIEMPRE DESCARGA)
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-            pdf.setFontSize(22); pdf.text(data.tipo, 105, 20, {align:'center'});
-            pdf.setFontSize(12); pdf.text(data.emisor, 20, 40);
-            pdf.text("CUIT: " + data.eCuit, 20, 46);
-            pdf.line(20, 50, 190, 50);
-            pdf.text("CLIENTE: " + data.cliente, 20, 60);
-            pdf.text("CONCEPTO: " + data.detalle, 20, 80);
-            pdf.setFontSize(16); pdf.text("TOTAL: $" + data.total, 20, 110);
-            pdf.save(`Factura_${data.cliente}.pdf`);
-
-            // B. FIREBASE
-            if(db) { await db.collection("facturas").add({...data, ts: new Date()}); }
-
-            // C. ENVÍO
-            if(data.canal === 'wa') {
-                const link = `https://api.whatsapp.com/send?phone=${data.tel}&text=${encodeURIComponent('Hola '+data.cliente+', factura de '+data.emisor+' por $'+data.total)}`;
-                window.open(link, '_blank');
-            } else {
-                await emailjs.send("service_t5t4wor", "template_acd00wp", {
-                    to_email: data.mail,
-                    to_name: data.cliente,
-                    total: data.total
-                });
-                alert("Email enviado");
-            }
-        } catch(e) { 
-            alert("Error: " + e.message); 
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "DESCARGAR Y ENVIAR";
-        }
-    }
-
-    // Iniciar Preview al cargar
-    window.onload = doPreview;
-</script>
-
-</body>
-</html>
+            <h3>👤 Datos Cliente</h3>
+            <input type="text" id
