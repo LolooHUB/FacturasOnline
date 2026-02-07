@@ -8,8 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
 <div class="app-container">
@@ -48,40 +46,39 @@
     </div>
 
     <div class="grid-btns">
-        <button onclick="enviar('mail')" class="btn btn-mail" id="btnM">📧 ENVIAR PDF POR MAIL</button>
+        <button onclick="enviar('mail')" class="btn btn-mail" id="btnM">📧 ENVIAR POR MAIL</button>
         <button onclick="enviar('wa')" class="btn btn-wa">🟢 WHATSAPP</button>
         <button onclick="copiarImagen()" class="btn btn-copy">🖼️ COPIAR IMAGEN</button>
     </div>
 
     <div class="preview-wrap">
-        <h3>Vista Previa del Comprobante:</h3>
+        <h3>Vista Previa:</h3>
         <div id="preview-box">
-            <div class="f-header-box">
+            <div class="f-header">
                 <div class="f-col">
-                    <strong id="p-eNom">EMPRESA</strong><br>
-                    CUIT: <span id="p-eCuit">...</span><br>
-                    Responsable Monotributo
+                    <strong id="p-eNom">MI EMPRESA</strong><br>
+                    <span id="p-condicion" style="font-size: 11px;">Comprobante de Venta</span><br>
+                    <span style="font-size: 11px;">CUIT: <span id="p-eCuit">...</span></span>
                 </div>
-                <div class="f-letra-box">
-                    <div id="p-letra">C</div>
-                    <small>COD. 11</small>
-                </div>
+                <div class="f-letra">C</div>
                 <div class="f-col" style="text-align: right;">
                     <strong>FACTURA</strong><br>
-                    Fecha: <span id="p-fec"></span><br>
-                    Nº 0001-00000001
+                    <span id="p-fec">--/--/----</span>
                 </div>
             </div>
-            <div class="f-client-section">
-                <strong>Cliente:</strong> <span id="p-cNom">...</span><br>
-                <strong>Condición IVA:</strong> Consumidor Final
+            <div class="f-receptor-line">
+                <strong>Cliente:</strong> <span id="p-cNom">...</span>
             </div>
             <table class="f-table">
-                <thead><tr><th>CANT</th><th>DESCRIPCIÓN</th><th>UNIT</th><th>SUBTOTAL</th></tr></thead>
+                <thead>
+                    <tr><th>Cant</th><th>Descripción</th><th>Unit</th><th>Subtotal</th></tr>
+                </thead>
                 <tbody id="p-items"></tbody>
             </table>
-            <div class="f-total-box">TOTAL: <span id="p-tot">$ 0.00</span></div>
-            <div class="f-pago-info"><strong>DATOS DE PAGO:</strong> <span id="p-pago">...</span></div>
+            <div class="f-total">TOTAL: <span id="p-tot">$ 0</span></div>
+            <div class="f-pago-box">
+                TRANSFERIR A: <strong id="p-pago">...</strong>
+            </div>
         </div>
     </div>
 </div>
