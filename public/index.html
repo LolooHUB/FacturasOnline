@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facturador PRO | Ultra Dinámico</title>
+    <title>Facturador PRO | Final</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -15,8 +15,9 @@
 <div class="app-container">
     <header class="main-header">
         <h1>Facturador <span>PRO</span></h1>
-        <p>Generación de Comprobantes Inteligentes</p>
+        <p>Generador de Comprobantes Profesionales</p>
     </header>
+
     <div class="main-grid">
         <div class="card">
             <h3>🏢 Configuración y Cliente</h3>
@@ -24,43 +25,63 @@
                 <div class="form-group"><label>Mi Empresa</label><input type="text" id="eNom"></div>
                 <div class="form-group"><label>Mi CUIT</label><input type="text" id="eCuit"></div>
             </div>
-            <div class="form-group"><label>Cobro (CBU/Alias)</label><input type="text" id="ePago"></div>
-            <hr style="border:0; border-top: 1px solid var(--border); margin: 15px 0;">
+            <div class="form-group"><label>Cobro (Alias/CBU)</label><input type="text" id="ePago"></div>
+            <hr class="divider">
             <div class="form-group"><label>Cliente</label><input type="text" id="cNom" oninput="upd()"></div>
             <div class="row">
-                <div class="form-group">
-                    <label>Tipo</label>
+                <div class="form-group"><label>Tipo</label>
                     <select id="tipoF" onchange="upd()"><option value="C">Factura C</option><option value="A">Factura A</option><option value="B">Factura B</option></select>
                 </div>
                 <div class="form-group"><label>Fecha</label><input type="text" id="fecManual" oninput="upd()"></div>
             </div>
         </div>
+
         <div class="card">
-            <h3>📦 Detalle de Venta</h3>
+            <h3>📦 Artículos y Envío</h3>
             <div id="items-container"></div>
             <button class="btn-add" onclick="addItem()">+ AGREGAR ARTÍCULO</button>
             <div class="mt-20">
                 <div class="form-group"><label>Email Destino</label><input type="email" id="email"></div>
-                <div class="form-group"><label>WhatsApp (Cod. País)</label><input type="tel" id="tel"></div>
+                <div class="form-group"><label>WhatsApp</label><input type="tel" id="tel" placeholder="549..."></div>
             </div>
         </div>
     </div>
+
     <div class="grid-btns">
-        <button onclick="enviar('mail')" class="btn btn-mail" id="btnM">📧 MAIL</button>
+        <button onclick="enviar('mail')" class="btn btn-mail" id="btnM">📧 ENVIAR PDF POR MAIL</button>
         <button onclick="enviar('wa')" class="btn btn-wa">🟢 WHATSAPP</button>
-        <button onclick="copiarImagen()" class="btn btn-copy">🖼️ IMAGEN</button>
+        <button onclick="copiarImagen()" class="btn btn-copy">🖼️ COPIAR IMAGEN</button>
     </div>
+
     <div class="preview-wrap">
+        <h3>Vista Previa del Comprobante:</h3>
         <div id="preview-box">
-            <div class="f-header">
-                <div style="flex: 2;"><h2 id="p-eNom">EMPRESA</h2><p>CUIT: <span id="p-eCuit">...</span></p></div>
-                <div class="f-letra" id="p-letra">C</div>
-                <div style="flex: 2; text-align: right;"><h2>FACTURA</h2><p>Fecha: <span id="p-fec"></span></p></div>
+            <div class="f-header-box">
+                <div class="f-col">
+                    <strong id="p-eNom">EMPRESA</strong><br>
+                    CUIT: <span id="p-eCuit">...</span><br>
+                    Responsable Monotributo
+                </div>
+                <div class="f-letra-box">
+                    <div id="p-letra">C</div>
+                    <small>COD. 11</small>
+                </div>
+                <div class="f-col" style="text-align: right;">
+                    <strong>FACTURA</strong><br>
+                    Fecha: <span id="p-fec"></span><br>
+                    Nº 0001-00000001
+                </div>
             </div>
-            <div class="f-client-info"><strong>CLIENTE:</strong> <span id="p-cNom">...</span></div>
-            <table class="f-table"><thead><tr><th>CANT</th><th>DESCRIPCIÓN</th><th>UNIT</th><th style="text-align:right">SUBTOTAL</th></tr></thead><tbody id="p-items"></tbody></table>
-            <div class="f-total">TOTAL: <span id="p-tot">$ 0.00</span></div>
-            <div class="f-footer"><strong>PAGO:</strong> <span id="p-pago">...</span></div>
+            <div class="f-client-section">
+                <strong>Cliente:</strong> <span id="p-cNom">...</span><br>
+                <strong>Condición IVA:</strong> Consumidor Final
+            </div>
+            <table class="f-table">
+                <thead><tr><th>CANT</th><th>DESCRIPCIÓN</th><th>UNIT</th><th>SUBTOTAL</th></tr></thead>
+                <tbody id="p-items"></tbody>
+            </table>
+            <div class="f-total-box">TOTAL: <span id="p-tot">$ 0.00</span></div>
+            <div class="f-pago-info"><strong>DATOS DE PAGO:</strong> <span id="p-pago">...</span></div>
         </div>
     </div>
 </div>
