@@ -3,208 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facturador PRO Multi-Artículos</title>
+    <title>Facturador PRO | Ultra Dinámico</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <style>
-        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --card: #ffffff; --border: #e2e8f0; }
-        body.dark-mode { --bg: #0f172a; --text: #f1f5f9; --card: #1e293b; --border: #334155; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 15px; margin: 0; transition: 0.3s; }
-        
-        .container { max-width: 900px; margin: 0 auto; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; }
-        
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); margin-bottom: 10px; box-sizing: border-box; }
-        
-        /* Tabla de Artículos */
-        .item-row { display: grid; grid-template-columns: 3fr 1fr 1fr 40px; gap: 10px; margin-bottom: 10px; }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; margin-bottom: 20px; }
-        
-        .grid-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        .btn { padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; color: white; }
-        .btn-mail { background: #2563eb; }
-        .btn-wa { background: #22c55e; }
-        .btn-copy { background: #64748b; }
-        .btn-theme { background: none; border: 1px solid var(--border); color: var(--text); padding: 5px 10px; cursor: pointer; border-radius: 20px; }
-
-        /* Estilo Factura Preview */
-        #preview-box { background: white; color: black; padding: 20px; border: 2px solid #000; font-size: 0.8rem; }
-        .f-header { display: flex; border: 1px solid #000; margin-bottom: 10px; }
-        .f-col { flex: 1; padding: 10px; }
-        .f-letra { width: 50px; border-left: 1px solid #000; border-right: 1px solid #000; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; background: #eee; }
-        .f-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-        .f-table th, .f-table td { border: 1px solid #000; padding: 5px; text-align: left; }
-        .f-total { text-align: right; font-size: 1.4rem; font-weight: bold; border: 1px solid #000; padding: 10px; margin-top: 10px; }
-    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
-
-<div class="container">
-    <div class="header-flex">
-        <h2>Facturador Inteligente</h2>
-        <button class="btn-theme" onclick="document.body.classList.toggle('dark-mode')">🌓 Modo Oscuro</button>
-    </div>
-
-    <div class="card">
-        <h3>🏢 Mis Datos y Cliente</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <input type="text" id="eNom" placeholder="Tu Empresa" oninput="upd()">
-            <input type="text" id="cNom" placeholder="Nombre Cliente" oninput="upd()">
-        </div>
-        <input type="text" id="ePago" placeholder="Alias o CBU para cobrar">
-        <input type="email" id="email" placeholder="Email Cliente">
-        <input type="tel" id="tel" placeholder="WhatsApp Cliente">
-    </div>
-
-    <div class="card">
-        <h3>📦 Artículos</h3>
-        <div id="items-container">
-            <div class="item-row">
-                <input type="text" placeholder="Producto" class="i-desc" oninput="upd()">
-                <input type="number" placeholder="Cant" class="i-cant" value="1" oninput="upd()">
-                <input type="number" placeholder="Precio" class="i-precio" oninput="upd()">
-                <button onclick="this.parentElement.remove(); upd()" style="background:none; border:none; color:red; cursor:pointer">✕</button>
+<div class="app-container">
+    <header class="main-header">
+        <h1>Facturador <span>PRO</span></h1>
+        <p>Generación de Comprobantes Inteligentes</p>
+    </header>
+    <div class="main-grid">
+        <div class="card">
+            <h3>🏢 Configuración y Cliente</h3>
+            <div class="row">
+                <div class="form-group"><label>Mi Empresa</label><input type="text" id="eNom"></div>
+                <div class="form-group"><label>Mi CUIT</label><input type="text" id="eCuit"></div>
+            </div>
+            <div class="form-group"><label>Cobro (CBU/Alias)</label><input type="text" id="ePago"></div>
+            <hr style="border:0; border-top: 1px solid var(--border); margin: 15px 0;">
+            <div class="form-group"><label>Cliente</label><input type="text" id="cNom" oninput="upd()"></div>
+            <div class="row">
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="tipoF" onchange="upd()"><option value="C">Factura C</option><option value="A">Factura A</option><option value="B">Factura B</option></select>
+                </div>
+                <div class="form-group"><label>Fecha</label><input type="text" id="fecManual" oninput="upd()"></div>
             </div>
         </div>
-        <button class="btn-add" onclick="addItem()">+ Agregar Artículo</button>
-    </div>
-
-    <div class="grid-btns">
-        <button onclick="enviar('mail')" class="btn btn-mail" id="btnM">📧 Enviar Mail</button>
-        <button onclick="enviar('wa')" class="btn btn-wa">🟢 WhatsApp</button>
-        <button onclick="copiarImagen()" class="btn btn-copy">🖼️ Copiar Imagen</button>
-    </div>
-
-    <h3>Vista Previa:</h3>
-    <div id="preview-box">
-        <div class="f-header">
-            <div class="f-col"><strong id="p-eNom">EMPRESA</strong><br>Comprobante de Venta</div>
-            <div class="f-letra">C</div>
-            <div class="f-col" style="text-align: right;"><strong>FACTURA</strong><br><span id="p-fec"></span></div>
+        <div class="card">
+            <h3>📦 Detalle de Venta</h3>
+            <div id="items-container"></div>
+            <button class="btn-add" onclick="addItem()">+ AGREGAR ARTÍCULO</button>
+            <div class="mt-20">
+                <div class="form-group"><label>Email Destino</label><input type="email" id="email"></div>
+                <div class="form-group"><label>WhatsApp (Cod. País)</label><input type="tel" id="tel"></div>
+            </div>
         </div>
-        <div><strong>Cliente:</strong> <span id="p-cNom">...</span></div>
-        <table class="f-table">
-            <thead>
-                <tr><th>Cant</th><th>Descripción</th><th>Unit</th><th>Subtotal</th></tr>
-            </thead>
-            <tbody id="p-items"></tbody>
-        </table>
-        <div class="f-total">TOTAL: <span id="p-tot">$ 0.00</span></div>
+    </div>
+    <div class="grid-btns">
+        <button onclick="enviar('mail')" class="btn btn-mail" id="btnM">📧 MAIL</button>
+        <button onclick="enviar('wa')" class="btn btn-wa">🟢 WHATSAPP</button>
+        <button onclick="copiarImagen()" class="btn btn-copy">🖼️ IMAGEN</button>
+    </div>
+    <div class="preview-wrap">
+        <div id="preview-box">
+            <div class="f-header">
+                <div style="flex: 2;"><h2 id="p-eNom">EMPRESA</h2><p>CUIT: <span id="p-eCuit">...</span></p></div>
+                <div class="f-letra" id="p-letra">C</div>
+                <div style="flex: 2; text-align: right;"><h2>FACTURA</h2><p>Fecha: <span id="p-fec"></span></p></div>
+            </div>
+            <div class="f-client-info"><strong>CLIENTE:</strong> <span id="p-cNom">...</span></div>
+            <table class="f-table"><thead><tr><th>CANT</th><th>DESCRIPCIÓN</th><th>UNIT</th><th style="text-align:right">SUBTOTAL</th></tr></thead><tbody id="p-items"></tbody></table>
+            <div class="f-total">TOTAL: <span id="p-tot">$ 0.00</span></div>
+            <div class="f-footer"><strong>PAGO:</strong> <span id="p-pago">...</span></div>
+        </div>
     </div>
 </div>
-
-<script>
-    emailjs.init("ne2_1nbxGq2hC0ju1");
-
-    function addItem() {
-        const div = document.createElement('div');
-        div.className = 'item-row';
-        div.innerHTML = `
-            <input type="text" placeholder="Producto" class="i-desc" oninput="upd()">
-            <input type="number" placeholder="Cant" class="i-cant" value="1" oninput="upd()">
-            <input type="number" placeholder="Precio" class="i-precio" oninput="upd()">
-            <button onclick="this.parentElement.remove(); upd()" style="background:none; border:none; color:red; cursor:pointer">✕</button>
-        `;
-        document.getElementById('items-container').appendChild(div);
-        upd();
-    }
-
-    function upd() {
-        document.getElementById('p-eNom').innerText = document.getElementById('eNom').value.toUpperCase() || "MI EMPRESA";
-        document.getElementById('p-cNom').innerText = document.getElementById('cNom').value.toUpperCase() || "...";
-        document.getElementById('p-fec').innerText = new Date().toLocaleDateString();
-
-        let total = 0;
-        let htmlItems = "";
-        const rows = document.querySelectorAll('.item-row');
-        
-        rows.forEach(row => {
-            const d = row.querySelector('.i-desc').value || "-";
-            const c = parseFloat(row.querySelector('.i-cant').value) || 0;
-            const p = parseFloat(row.querySelector('.i-precio').value) || 0;
-            const sub = c * p;
-            total += sub;
-            htmlItems += `<tr><td>${c}</td><td>${d}</td><td>$${p}</td><td>$${sub.toFixed(2)}</td></tr>`;
-        });
-
-        document.getElementById('p-items').innerHTML = htmlItems;
-        document.getElementById('p-tot').innerText = "$ " + total.toLocaleString();
-        return total;
-    }
-
-    async function enviar(canal) {
-        const total = upd();
-        const cliente = document.getElementById('cNom').value;
-        const emisor = document.getElementById('eNom').value;
-        const pago = document.getElementById('ePago').value;
-
-        // Generar PDF con Tabla
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF();
-        pdf.text(`Factura: ${emisor}`, 20, 20);
-        pdf.text(`Cliente: ${cliente}`, 20, 30);
-        let y = 50;
-        pdf.text("Cant - Producto - Total", 20, 40);
-        document.querySelectorAll('.item-row').forEach(row => {
-            const d = row.querySelector('.i-desc').value;
-            const c = row.querySelector('.i-cant').value;
-            const p = row.querySelector('.i-precio').value;
-            pdf.text(`${c} x ${d} : $${c*p}`, 20, y);
-            y += 10;
-        });
-        pdf.text(`TOTAL FINAL: $${total}`, 20, y + 10);
-        pdf.save("Factura.pdf");
-
-        if (canal === 'mail') {
-            const btn = document.getElementById('btnM');
-            btn.innerText = "Enviando...";
-            emailjs.send("service_t5t4wor", "template_vyjg8af", {
-                to_email: document.getElementById('email').value,
-                to_name: cliente,
-                total_monto: total,
-                pago_alias: pago,
-                fecha_comprobante: new Date().toLocaleDateString()
-            }).then(() => { alert("¡Enviado!"); btn.innerText = "📧 Enviar Mail"; });
-        } else {
-            const txt = `*FACTURA*%0A*De:* ${emisor}%0A*Total:* $${total}%0A*Pago:* ${pago}`;
-            window.open(`https://api.whatsapp.com/send?phone=${document.getElementById('tel').value}&text=${txt}`);
-        }
-    }
-
-    async function copiarImagen() {
-        const element = document.getElementById('preview-box');
-        const canvas = await html2canvas(element);
-        canvas.toBlob(blob => {
-            const item = new ClipboardItem({ "image/png": blob });
-            navigator.clipboard.write([item]);
-            alert("¡Imagen copiada al portapapeles! Ya podés pegarla en WhatsApp o Mail.");
-        });
-    }
-
-    window.onload = upd;
-
-    // Función para capturar el monto de la URL
-function capturarMontoURL() {
-    const params = new URLSearchParams(window.location.search);
-    const monto = params.get('monto');
-    
-    if (monto && monto > 0) {
-        // Buscamos el primer campo de precio de la tabla de artículos
-        const precioInput = document.querySelector('.i-precio');
-        const descInput = document.querySelector('.i-desc');
-        
-        if (precioInput) {
-            precioInput.value = monto;
-            if (descInput) descInput.value = "Servicio de Reparación";
-            upd(); // Actualizamos la vista previa automáticamente
-        }
-    }
-}
-
-// Ejecutamos la captura al cargar la página
-window.addEventListener('load', capturarMontoURL);
-</script>
+<script src="script.js"></script>
 </body>
 </html>
