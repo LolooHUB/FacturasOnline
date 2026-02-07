@@ -184,6 +184,27 @@
     }
 
     window.onload = upd;
+
+    // Función para capturar el monto de la URL
+function capturarMontoURL() {
+    const params = new URLSearchParams(window.location.search);
+    const monto = params.get('monto');
+    
+    if (monto && monto > 0) {
+        // Buscamos el primer campo de precio de la tabla de artículos
+        const precioInput = document.querySelector('.i-precio');
+        const descInput = document.querySelector('.i-desc');
+        
+        if (precioInput) {
+            precioInput.value = monto;
+            if (descInput) descInput.value = "Servicio de Reparación";
+            upd(); // Actualizamos la vista previa automáticamente
+        }
+    }
+}
+
+// Ejecutamos la captura al cargar la página
+window.addEventListener('load', capturarMontoURL);
 </script>
 </body>
 </html>
